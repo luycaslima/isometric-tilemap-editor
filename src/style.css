@@ -34,10 +34,15 @@ body{
 }
 
 .tileset-container{
+  position: relative;
   flex-grow: 1;
-  overflow:auto;
+  overflow: auto; /* This makes the blue selected square stay inside and not over everything*/
   height: 640px;
   margin: auto;
+}
+
+.selected-tile-container{
+  position: absolute;
 }
 
 .layers{
@@ -47,6 +52,7 @@ body{
 }
 
 .tileset{
+  padding: 1px;
   -webkit-user-drag: none;
   user-select: none;
   -moz-user-select: none;

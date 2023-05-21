@@ -1,4 +1,4 @@
-import { Container, Point, Sprite, Texture } from "pixi.js";
+import {  Point } from "pixi.js";
 
 // These are the four numbers that define the transform to isometric direction, i hat and j hat
 const i_x = 1;
@@ -18,13 +18,13 @@ export function toScreenCoordinates(gridPosition: Point): Point {
     } as Point;
 }
 
-
 export interface ITile {
+    tilesetSpritePos: [number, number]; //position in the tileset of the tile
     //position: Point;
     isWalkable: boolean;
     isSpawner: boolean;
 }
-
+/*
 export class Tile extends Container implements ITile{
     public sprite: Sprite;
 
@@ -57,4 +57,4 @@ export class Tile extends Container implements ITile{
         console.log(`Selected tile : x:${this.gridPosition.x} y:${this.gridPosition.y}`)
     }
 
-}
+}*/

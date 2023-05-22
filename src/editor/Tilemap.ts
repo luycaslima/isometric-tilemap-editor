@@ -1,4 +1,4 @@
-import { Container, Graphics, Point, Polygon, Texture} from "pixi.js";
+import { Container, Graphics, Point, Polygon} from "pixi.js";
 import { ITile } from "./Tiles";
 import { EditorManager } from "../core/EditorManager";
 
@@ -7,7 +7,7 @@ export interface ITilemap {
     tilesetPath: string;
     mapSize: [number, number]; //Number of tiles in the map width x height
     tileSize: [number, number]; //Size of each tile
-    tiles : ITile[][]
+    tilesData : ITile[][]
 }
 
 export class TilemapFile extends Container implements ITilemap{
@@ -19,18 +19,22 @@ export class TilemapFile extends Container implements ITilemap{
     //Represents which tile on the tilesetm(in thee position[0,0],[0,1]) will drawn where;
     //Should be store in a layer
     //tileMap: Array<[number, number]>;
-    tiles: ITile[][]; //or store like this?
+
+    tilesData: ITile[][]; //or store like this?
     //create a local variable only to show where the tiles will be.
-    private grid: Container;
+
+    public grid: Container;
+    private gridSquares: GridSquare[]; //easy access for the grid squares if size edit is necessary.
 
     constructor(path : string, numberOfTiles:[number,number], tilesize: [number,number] ) {
         super();
         this.tilesetPath = path;
         this.mapSize = numberOfTiles
         this.tileSize = tilesize;
-        this.tiles = [];
+        this.tilesData = [];
 
         this.grid = new Container();
+        this.gridSquares = [];
         //this.tileset = Texture.from(path);
 
         
@@ -38,14 +42,16 @@ export class TilemapFile extends Container implements ITilemap{
         const tileHeight = tilesize[1] / 2 ; // The grid ALWAYS have half the size of the tile
         for (let x = 0; x < numberOfTiles[0]; x++) {
             for (let y = 0; y < numberOfTiles[1]; y++) {
-                const square: GridSquare = new GridSquare(new Point(x, y), tileWidth , tileHeight,
-                    [0, 0, tileWidth / 2, tileHeight / 2, 0, tileHeight, -tileWidth / 2, tileHeight / 2]);
+                const square: GridSquare = new GridSquare(new Point(x, y),
+                    [0, 0, tileWidth / 2, tileHeight / 2, 0, tileHeight, -tileWidth / 2, tileHeight / 2]
+                );
                 
                 square.position = new Point(
                     x * tileWidth / 2  - y  * tileWidth /2
                     , x * tileHeight / 2 + y * tileHeight / 2);
                 
                 this.grid.addChild(square);
+                this.gridSquares.push(square);
             }
         } 
         this.addChild(this.grid);
@@ -54,16 +60,13 @@ export class TilemapFile extends Container implements ITilemap{
 
 //Class for the representation of the grid of the map
 class GridSquare extends Graphics{
-    gridPosition: Point
-    rectPos: [number, number, number, number, number, number, number, number];
-    tileWidth: number;
-    tileHeight: number;
+    private gridPosition: Point
+    private rectPos: [number, number, number, number, number, number, number, number];
 
-    constructor(gridPos : Point, tileWidth : number, tileHeight : number, rect : [number, number, number, number, number, number, number, number]) {
+    constructor(gridPos : Point, rect : [number, number, number, number, number, number, number, number]) {
         super(); 
         this.gridPosition = gridPos;
-        this.tileHeight = tileHeight;
-        this.tileWidth = tileWidth;
+        
 
         this.rectPos = rect;
         this.lineStyle(1, 0x00000);
@@ -74,9 +77,8 @@ class GridSquare extends Graphics{
         this.hitArea = new Polygon(this.rectPos);
         this.eventMode = 'static';
 
-        this.on('mousedown', this.printSquare); //Calls the fill square with tile function here
-        //TODO on onHover check if holdbutton and place tile
-
+        this.on('mousedown', this.placeTile); //Calls the fill square with tile function here
+        //TODO on onHover check if holdbutton and place tile automatically
 
         //For better UX
         this.on('mouseover', this.onHover); 
@@ -84,6 +86,10 @@ class GridSquare extends Graphics{
     }
 
     onHover() {
+
+        //Show the current sprite in the grid position 
+        EditorManager.showCurrentTileOnGrid(this);
+
         this.clear();
         this.beginFill(0xFFFFFF);
         this.alpha = 0.5;
@@ -93,6 +99,9 @@ class GridSquare extends Graphics{
     }
 
     outHover() {
+        //hide it
+        EditorManager.hideCurrentTileOnGrid();
+        
         this.clear();
         this.alpha = 0.8;
         this.lineStyle(1, 0x00000);
@@ -100,8 +109,9 @@ class GridSquare extends Graphics{
         this.endFill();
     }
 
-    printSquare() {
-        EditorManager.placeTile(this.gridPosition);
+    placeTile() {
+        EditorManager.placeTile(this.gridPosition); //TODO pass the square reference to calculate the real position
+        
         //console.log(`x:${this.gridPosition.x} y:${this.gridPosition.y}`);
     }
 

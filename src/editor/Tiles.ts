@@ -1,4 +1,4 @@
-import {  Point } from "pixi.js";
+import { Point } from "pixi.js";
 
 // These are the four numbers that define the transform to isometric direction, i hat and j hat
 const i_x = 1;
@@ -19,7 +19,7 @@ export function toScreenCoordinates(gridPosition: Point): Point {
 }
 
 export interface ITile {
-    tilesetSpritePos: [number, number]; //position in the tileset of the tile
+    tilesetSpritePos: [number, number]; //the top left tile position in pixels of the tileset
     //position: Point;
     isWalkable: boolean;
     isSpawner: boolean;

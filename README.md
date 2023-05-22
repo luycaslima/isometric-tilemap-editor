@@ -8,11 +8,15 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 - [ ] TileMap
   
-  - [x] Draw Grid 
-    
-    - [x] Basic UX (Hover, click)
-  
   - [ ] Background Image/Scenario of the Map
+  
+  - [ ] Grid
+    
+    - [x] Draw Grid 
+    
+    - [x] Hover functions
+    
+    - [ ] Place tile Function
 
 - [x] Tile interface
 
@@ -22,23 +26,25 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     
     - [x] Create Tilesets
       
-      - [ ] Separete from the EditorManager
+      - [ ] Separate from the EditorManager
+  
+  - [ ] Place sprite on the position of the grid and store on the exportable variable the data
+  
+  - [x] Show Current selected tile on the grid
+  
+  - [x] Select tile from Tileset to draw on map
   
   - [ ] Export functions
     
     - [ ] JSON
-  
-  - [x] Pass the position from the grid to the tilemap on where it should draw/erase/edit the tile.
 
-- [ ] TileMap Editor UI
+- [ ] TileMap Editor UI/UX
   
   - [ ] Basic Interface / Functions
     
     - [ ] Layers
     
-    - [ ] Tileset
-      
-      - [ ] Select tile from Tileset to draw on map
+    - [x] Tileset
     
     - [ ] Export button
     
@@ -46,8 +52,10 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     
     - [ ] Clear Button
     
-    - [ ] Mouse zoom
-    
-    - [ ] Mouse drag
-    
-    - [ ] Mouse fill grid with tile
+    - [ ] Mouse events
+      
+      - [ ] Mouse zoom
+      
+      - [ ] Mouse drag
+      
+      - [ ] Hold mouse button to place tile automatically when moving

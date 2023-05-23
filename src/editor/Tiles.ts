@@ -13,13 +13,15 @@ export const SPRITESIZE = {w:48,h:48} as const;
 export function toScreenCoordinates(gridPosition: Point): Point {
     //Multiply by halfbecause of the offset of 0 on the canvas
     return {
-        x: gridPosition.x * i_x * 0.5 * SPRITESIZE.w + gridPosition.y * j_x * 0.5 * SPRITESIZE.w,
-        y: gridPosition.x * i_y * 0.5 * SPRITESIZE.h + gridPosition.y * j_y *  0.5 * SPRITESIZE.h
+        x: (gridPosition.x * SPRITESIZE.w / 2  - gridPosition.y  * SPRITESIZE.w /2) - (SPRITESIZE.w/2),
+        y: gridPosition.x *  SPRITESIZE.h / 4  + gridPosition.y  * SPRITESIZE.h /4 - (SPRITESIZE.h/4) 
     } as Point;
 }
 
 export interface ITile {
-    tilesetSpritePos: [number, number]; //the top left tile position in pixels of the tileset
+    tilesetTile: [number, number]; //the top left tile position in pixels of the tileset
+    x: number; //tile position on the grid
+    y: number;
     //position: Point;
     isWalkable: boolean;
     isSpawner: boolean;

@@ -55,7 +55,6 @@ export class EditorManager {
         });
         //Pixel art style
         BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
-
         EditorManager.app.ticker.add(EditorManager.update)
     }
 
@@ -110,15 +109,14 @@ export class EditorManager {
 
 
 
-    public static placeTile(position: Point) : void {
+    public static placeTile(gridPos : Point) : void {
         //check the tool (select, place, erase)
-        console.log(`x:${position.x} y:${position.y}`);
+        //console.log(`x:${position.x} y:${position.y}`);
         //check the position on the tile element
         //use this data to fill the gridsquare with a tile 
-        
+        EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, EditorManager.selectedTile);
     }
 
-    
     public static showCurrentTileOnGrid(gridRef: DisplayObject): void {
         if (EditorManager.selectedTileSprite) {
             EditorManager.selectedTileSprite.renderable = true;

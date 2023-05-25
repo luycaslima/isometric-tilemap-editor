@@ -1,4 +1,4 @@
-import { Point } from "pixi.js";
+import { Container, Point, Sprite, Texture } from "pixi.js";
 
 // These are the four numbers that define the transform to isometric direction, i hat and j hat
 const i_x = 1;
@@ -24,12 +24,50 @@ export interface Vector2{
     y: number;
 }
 
+type TileType = "SPAWNER" | "NORMAL";
+
 export interface ITile {
     //the position on the tileset atlas of the tile (value of the grid* tileset size)
     tilesetTile: [number, number];
+    isoPosition: Vector2;
     gridPosition: Vector2;
     z: number; // Height of the tile (zIndex)
-    isSpawner: boolean;
+    tileType: TileType;
+}
+
+export class Tile extends Container implements ITile{
+    tilesetTile: [number, number];
+    isoPosition: Vector2;
+    gridPosition: Vector2;
+    z: number; // Height of the tile (zIndex)
+    tileType: TileType;
+    
+    private sprite : Sprite
+
+
+    constructor(gridPosition: Point, texture: Texture, tilesetPos : [number,number]) {
+        super();
+
+        this.tileType = 'NORMAL';
+        this.tilesetTile = tilesetPos;
+        this.gridPosition = gridPosition; //Attetion to convertion from point to vector2
+        this.sprite = new Sprite(texture);
+
+        this.zIndex = gridPosition.x + gridPosition.y;
+        this.z = 0;
+
+        this.isoPosition = toScreenCoordinates(gridPosition); //Attetion to convertion from point to vector2
+        
+        this.position.x = this.isoPosition.x;
+        this.position.y = this.isoPosition.y;
+
+        this.addChild(this.sprite);
+        this.sortChildren();
+    }
+
+    public changeTexture(texture: Texture) {
+        this.sprite.texture = texture;
+    }
 }
 
 /*

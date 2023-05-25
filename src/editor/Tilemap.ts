@@ -9,7 +9,7 @@ export interface ITilemap {
     tilesetPath: string;
     mapSize: [number, number]; //Number of tiles in the map width x height
     tileSize: [number, number]; //Size of each tile
-    tilesData : (ITile)[][]
+    tilesData : ITile[][]
 }
 
 
@@ -78,7 +78,6 @@ export class TilemapFile extends Container implements ITilemap{
 
     public drawAndSaveTile(texture : Texture, gridPos : Point , selectedTile: [number,number]) {
         if (this.tiles[gridPos.x][gridPos.y] === undefined) {
-           
             const spr = Sprite.from(texture);
             const isoPos = toScreenCoordinates(gridPos);
             spr.position.x = isoPos.x;

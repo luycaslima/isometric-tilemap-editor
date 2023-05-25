@@ -1,5 +1,6 @@
 import { Application,  BaseTexture, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
 import { TilemapFile } from "../editor/Tilemap";
+import { Stage } from "@pixi/layers";
 
 export class EditorManager {
     constructor() { }
@@ -53,6 +54,8 @@ export class EditorManager {
             width: width,
             height: height
         });
+        EditorManager.app.stage = new Stage();
+
         //Pixel art style
         BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
         EditorManager.app.ticker.add(EditorManager.update)

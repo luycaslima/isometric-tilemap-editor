@@ -37,7 +37,7 @@ body{
   position: relative;
   flex-grow: 1;
   overflow: auto; /* This makes the blue selected square stay inside and not over everything*/
-  height: 640px;
+  height: 340px;
   margin: auto;
 }
 
@@ -47,14 +47,14 @@ body{
 
 .layers{
   overflow:auto;
-  height: 200px;
+  height: 300px;
   margin: auto;
 }
 
 .tileset{
   padding: 1px;
-  -webkit-user-drag: none;
   user-select: none;
+  -webkit-user-drag: none;
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;

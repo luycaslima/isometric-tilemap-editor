@@ -1,6 +1,8 @@
 import { Container, Graphics, Point, Polygon, Sprite, Texture} from "pixi.js";
 import { ITile, toScreenCoordinates } from "./Tiles";
 import { EditorManager } from "../core/EditorManager";
+import { Layer } from "@pixi/layers";
+import { MapLayer } from "./Layer";
 
 //Export Json
 export interface ITilemap {
@@ -10,6 +12,7 @@ export interface ITilemap {
     tilesData : (ITile)[][]
 }
 
+
 export class TilemapFile extends Container implements ITilemap{
     //Only export the interface
     tilesetPath: string;
@@ -17,13 +20,12 @@ export class TilemapFile extends Container implements ITilemap{
     tileSize: [number, number];
 
     //private tileset: Texture;
-    //Represents which tile on the tileset(in thee position[0,0],[0,1]) will drawn where;
-    //Should be store in a layer
-    //tileMap: Array<[number, number]>;
-    
+    private layers: Array<MapLayer>;
+
     //This data will be responsible by each layer
+    //TODO Use Tile class to store the tile and the data to be exported
     tilesData: Array<Array<ITile>>
-    private tiles: Array<Array<Sprite>>; //representation on screen the layer will store each a widthxheight array 
+    private tiles: Array<Array<Sprite | undefined>>; //representation on screen the layer will store each a widthxheight array 
 
     private grid: Container;
     private gridSquares: GridSquare[]; //easy access for the grid squares if size edit is necessary.
@@ -34,32 +36,27 @@ export class TilemapFile extends Container implements ITilemap{
         this.mapSize = numberOfTiles
         this.tileSize = tilesize;
         
+        this.layers = [];
+        //Tiles
         this.tiles =[];
         this.tilesData = [];
 
         this.grid = new Container();
+        this.grid.zIndex = 1000;
         this.gridSquares = [];
 
         
         const tileWidth = tilesize[0]; 
         const tileHeight = tilesize[1] / 2; // The grid ALWAYS have half the size of the tile
-        let tempSprArray = [];
+        let tempSprArray = []; //For filling each row of the array of tiles
+        
         for (let x = 0; x < numberOfTiles[0]; x++) {
             for (let y = 0; y < numberOfTiles[1]; y++) {
-
-                //TODO This is the most cursed thing that i have done. reformulate when inserting the LAYERS system from pixi layers
-                const spr = new Sprite();
-                const isoPos = toScreenCoordinates({ x, y } as Point);
-                spr.position.x = isoPos.x;
-                spr.position.y = isoPos.y;
-                tempSprArray.push(spr);
-                this.addChild(spr);
-
+                tempSprArray.push(undefined); 
                 //TODO STORE THIS WITH THE SPRITE IN CLASS TO NO INITIATE TWO ARRAYS THEN ONLY EXPORT IMPORTANT DATA
                 /*this.tilesData[x][y] = {
                     tilesetTile: [-1, -1],x: -1,y:-1, isSpawner: false, isWalkable: false
                 } as ITile;*/
-
                 //grid draw
                 const square: GridSquare = new GridSquare(new Point(x, y),
                     [0, 0, tileWidth / 2, tileHeight / 2, 0, tileHeight, -tileWidth / 2, tileHeight / 2]
@@ -76,11 +73,27 @@ export class TilemapFile extends Container implements ITilemap{
             tempSprArray = [];
         } 
         this.addChild(this.grid);
-        console.log(this.tiles);
+        //console.log(this.tiles);
     }
 
     public drawAndSaveTile(texture : Texture, gridPos : Point , selectedTile: [number,number]) {
-        this.tiles[gridPos.x][gridPos.y].texture = texture;
+        if (this.tiles[gridPos.x][gridPos.y] === undefined) {
+           
+            const spr = Sprite.from(texture);
+            const isoPos = toScreenCoordinates(gridPos);
+            spr.position.x = isoPos.x;
+            spr.position.y = isoPos.y;  
+            spr.zIndex = gridPos.x + gridPos.y; //Somar com o Z imaginário? ou separar por layer
+            this.tiles[gridPos.x][gridPos.y] = spr;
+            this.addChild(spr);
+            this.sortChildren();
+            //console.log(this.tiles);
+        
+        } else {
+            this.tiles[gridPos.x][gridPos.y]!.texture = texture;
+        }
+
+        //this.tiles[gridPos.x][gridPos.y].texture = texture;
         //Storing data
         //this.tilesData[gridPos.x][gridPos.y].tilesetTile = selectedTile;
         //this.tilesData[gridPos.x][gridPos.y].x = spr.x;

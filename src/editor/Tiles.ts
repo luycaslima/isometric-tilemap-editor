@@ -14,18 +14,24 @@ export function toScreenCoordinates(gridPosition: Point): Point {
     //Multiply by halfbecause of the offset of 0 on the canvas
     return {
         x: (gridPosition.x * SPRITESIZE.w / 2  - gridPosition.y  * SPRITESIZE.w /2) - (SPRITESIZE.w/2),
-        y: gridPosition.x *  SPRITESIZE.h / 4  + gridPosition.y  * SPRITESIZE.h /4 - (SPRITESIZE.h/4) 
+        y: gridPosition.x *  SPRITESIZE.h / 4  + gridPosition.y  * SPRITESIZE.h /4 - (SPRITESIZE.h/2) 
     } as Point;
 }
 
-export interface ITile {
-    tilesetTile: [number, number]; //the top left tile position in pixels of the tileset
-    x: number; //tile position on the grid
+//Best to not export a Point from pixi js
+export interface Vector2{
+    x: number;
     y: number;
-    //position: Point;
-    isWalkable: boolean;
+}
+
+export interface ITile {
+    //the position on the tileset atlas of the tile (value of the grid* tileset size)
+    tilesetTile: [number, number];
+    gridPosition: Vector2;
+    z: number; // Height of the tile (zIndex)
     isSpawner: boolean;
 }
+
 /*
 export class Tile extends Container implements ITile{
     public sprite: Sprite;

@@ -8,13 +8,11 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 - [ ] Refactor for using the pixi layers for z ordering and layers function
 
-- [ ] Use a class for store the data for export and the sprite represetantion on screen
-
 - [ ] TileMap
   
   - [ ] Background Image/Scenario of the Map
   
-  - [ ] Grid
+  - [x] Grid
     
     - [x] Draw Grid 
     
@@ -32,7 +30,7 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
       
       - [ ] Separate from the EditorManager
   
-  - [ ] Place sprite on the position of the grid and store on the exportable variable the data
+  - [x] Place sprite on the position of the grid and store on the exportable variable the data
   
   - [x] Show Current selected tile on the grid
   
@@ -54,7 +52,9 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     
     - [ ] New Tilemap button
     
-    - [ ] Clear Button
+    - [ ] New Tileset button?
+    
+    - [ ] Tools ( Brush, Eraser ) Zoom Input
     
     - [ ] Mouse events
       

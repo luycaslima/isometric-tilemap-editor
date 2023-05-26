@@ -1,20 +1,16 @@
 import { Container, Point, Sprite, Texture } from "pixi.js";
 
-// These are the four numbers that define the transform to isometric direction, i hat and j hat
-const i_x = 1;
-const i_y = 0.5;
-const j_x = -1;
-const j_y = 0.5;
-
-//Constante por enquanto, futuro ser capaz de editar
-export const SPRITESIZE = {w:48,h:48} as const;
+export interface SpriteSize {
+    w: number;
+    h: number
+}
 
 //Converte grid position to  isometric position
-export function toScreenCoordinates(gridPosition: Point): Point {
+export function toScreenCoordinates(gridPosition: Point, spriteSize : SpriteSize): Point {
     //Multiply by halfbecause of the offset of 0 on the canvas
     return {
-        x: (gridPosition.x * SPRITESIZE.w / 2  - gridPosition.y  * SPRITESIZE.w /2) - (SPRITESIZE.w/2),
-        y: gridPosition.x *  SPRITESIZE.h / 4  + gridPosition.y  * SPRITESIZE.h /4 - (SPRITESIZE.h/2) 
+        x: (gridPosition.x * spriteSize.w / 2  - gridPosition.y  * spriteSize.w /2) - (spriteSize.w/2),
+        y: gridPosition.x *  spriteSize.h / 4  + gridPosition.y  * spriteSize.h /4 - (spriteSize.h/2) 
     } as Point;
 }
 
@@ -45,7 +41,7 @@ export class Tile extends Container implements ITile{
     private sprite : Sprite
 
 
-    constructor(gridPosition: Point, texture: Texture, tilesetPos : [number,number]) {
+    constructor(gridPosition: Point, texture: Texture, tilesetPos : [number,number], spriteSize : SpriteSize) {
         super();
 
         this.tileType = 'NORMAL';
@@ -56,13 +52,12 @@ export class Tile extends Container implements ITile{
         this.zIndex = gridPosition.x + gridPosition.y;
         this.z = 0;
 
-        this.isoPosition = toScreenCoordinates(gridPosition); //Attetion to convertion from point to vector2
+        this.isoPosition = toScreenCoordinates(gridPosition,spriteSize); //Attetion to convertion from point to vector2
         
         this.position.x = this.isoPosition.x;
         this.position.y = this.isoPosition.y;
 
         this.addChild(this.sprite);
-        this.sortChildren();
     }
 
     public changeTexture(texture: Texture) {

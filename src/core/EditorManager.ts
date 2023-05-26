@@ -1,5 +1,5 @@
 import { Application,  BaseTexture, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
-import { TilemapFile } from "../editor/Tilemap";
+import { TilemapFile } from "../entities/Tilemap";
 import { Stage } from "@pixi/layers";
 
 export class EditorManager {
@@ -85,7 +85,6 @@ export class EditorManager {
     }
 
     public static createTileset(tilesetPath: string) : void {
-         //SET UP TILESET
         //TODO create separatly or use ONLY one atlas image for each tilemap?
         EditorManager.tileset = BaseTexture.from(tilesetPath);
         EditorManager.tilesetImgElement.src = tilesetPath;
@@ -100,7 +99,6 @@ export class EditorManager {
         EditorManager.selectedTileSprite.renderable = false;
         EditorManager.app.stage.addChild(EditorManager.selectedTileSprite);
   
-  
         //TODO call this on another place?
         EditorManager.tilesetImgElement.addEventListener('mousedown', EditorManager.changeCurrentTileTexture)
   
@@ -111,12 +109,7 @@ export class EditorManager {
     }
 
 
-
     public static placeTile(gridPos : Point) : void {
-        //check the tool (select, place, erase)
-        //console.log(`x:${position.x} y:${position.y}`);
-        //check the position on the tile element
-        //use this data to fill the gridsquare with a tile 
         EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, EditorManager.selectedTile);
     }
 

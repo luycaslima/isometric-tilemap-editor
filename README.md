@@ -6,8 +6,6 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 ## TODO
 
-- [ ] Refactor for using the pixi layers for z ordering and layers function
-
 - [ ] TileMap
   
   - [ ] Background Image/Scenario of the Map
@@ -22,23 +20,43 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 - [x] Tile interface
 
-- [ ] TileMap Editor Manager
+- [ ] Layers Class
+  
+  - [ ] Use the pixi layers context for z ordering and layers function
+  
+  - [ ] 
+
+- [ ] Tilemaps
   
   - [x] Create Tilemaps
-    
-    - [x] Create Tilesets
-      
-      - [ ] Separate from the EditorManager
   
-  - [x] Place sprite on the position of the grid and store on the exportable variable the data
+  - [ ] Store Layers and insert the Tiles in each layer
+  
+  - [x] Store Tiles, Sprite Size and path for the texture.
+    
+    - [x] Place sprite on the position of the grid and store on the exportable variable the data
+
+- [x] Tilesets
+  
+  - [x] Create Tilesets
+
+- [ ] Input Manager/Mouse class 
+  
+  - [ ] Mouse zoom
+  
+  - [ ] Mouse pan
+  
+  - [ ] Hold mouse button to apply the current tool to tile automatically when moving it
+
+- [ ] TileMap Editor Manager
   
   - [x] Show Current selected tile on the grid
   
   - [x] Select tile from Tileset to draw on map
   
-  - [ ] Export functions
-    
-    - [ ] JSON
+  - [ ] Open JSON
+  
+  - [ ] Export/Save JSON
 
 - [ ] TileMap Editor UI/UX
   
@@ -55,11 +73,7 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     - [ ] New Tileset button?
     
     - [ ] Tools ( Brush, Eraser ) Zoom Input
-    
-    - [ ] Mouse events
-      
-      - [ ] Mouse zoom
-      
-      - [ ] Mouse drag
-      
-      - [ ] Hold mouse button to place tile automatically when moving
+
+- [ ] Direct Integration in the game engine (?)
+
+- [ ] Use Svelte for better UI (?)

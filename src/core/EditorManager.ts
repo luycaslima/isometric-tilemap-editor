@@ -108,9 +108,8 @@ export class EditorManager {
   
     }
 
-
     public static placeTile(gridPos : Point) : void {
-        EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, EditorManager.selectedTile);
+        EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, EditorManager.selectedTile, EditorManager.selectedLayer);
     }
 
     public static showCurrentTileOnGrid(gridRef: DisplayObject): void {

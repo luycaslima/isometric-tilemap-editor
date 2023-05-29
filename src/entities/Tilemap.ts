@@ -33,39 +33,14 @@ export class TilemapFile extends Container implements ITilemap{
         this.layers = [];
         //this.tiles =[];
         
+        //TODO how to garanteee that the grid will always be over everything
         this.grid = new Container();
         this.grid.zIndex = 1000;
         this.gridSquares = [];
-
-        /*
-        const tileWidth = tilesize[0]; 
-        const tileHeight = tilesize[1] / 2; // The grid ALWAYS have half the size of the tile
-        let tempTileArray = []; //For filling each row of the array of tiles
-        for (let x = 0; x < numberOfTiles[0]; x++) {
-            for (let y = 0; y < numberOfTiles[1]; y++) {
-                tempTileArray.push(undefined);
-
-                const square: GridSquare = new GridSquare(new Point(x, y),
-                    [0, 0, tileWidth / 2, tileHeight / 2, 0, tileHeight, -tileWidth / 2, tileHeight / 2]
-                );
-                square.position = new Point(
-                    x * tileWidth / 2  - y  * tileWidth /2
-                    , x * tileHeight / 2 + y * tileHeight / 2);
-                
-                
-                this.grid.addChild(square);
-                this.gridSquares.push(square);
-            }
-            tiles[x] = tempTileArray;
-            tempTileArray = [];
-        } 
-        this.addChild(this.grid);
-        
-        */
         
         this.createGrid();
-        this.createLayer();
-        //console.log(this.tiles);
+        //this.createLayer();
+        this.sortChildren();
     }
 
     private createGrid() {
@@ -105,15 +80,21 @@ export class TilemapFile extends Container implements ITilemap{
             tiles[x] = tempTileArray;
             tempTileArray = [];
         }
-        this.layers.push(new MapLayer(tiles));
+        const layer: MapLayer = new MapLayer(tiles)
+        this.layers.push(layer);
+        layer.zOrder = this.layers.length - 1;
+
+        this.addChild(layer);
     }
 
+    //TODO move to the layer class the operations , same with delete tile
     public drawAndSaveTile(texture : Texture, gridPos : Point , selectedTile: [number,number],selectedLayer: number) : void{
         if (this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] === undefined) {
             const tile = new Tile(gridPos, texture, selectedTile, {w: this.tileSize[0], h: this.tileSize[1]} as SpriteSize);
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] = tile;
-            this.addChild(tile);
-            this.sortChildren();
+            this.layers[selectedLayer].addChild(tile);
+            this.layers[selectedLayer].sortChildren();
+            //this.sortChildren();
         
         } else {
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!.changeTexture(texture);
@@ -123,7 +104,7 @@ export class TilemapFile extends Container implements ITilemap{
     public deleteTile(gridPos: Point, selectedLayer: number) : void {
         if (this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]) {
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] = undefined;
-            this.removeChild(this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!)
+            this.layers[selectedLayer].removeChild(this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!)
         }
     }
 

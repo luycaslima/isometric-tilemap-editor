@@ -6,35 +6,35 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 ## TODO
 
-- [ ] TileMap
-  
-  - [ ] Background Image/Scenario of the Map
-  
-  - [x] Grid
-    
-    - [x] Draw Grid 
-    
-    - [x] Hover functions
-    
-    - [x] Place tile Function
-
 - [x] Tile interface
 
-- [ ] Layers Class
-  
-  - [ ] Use the pixi layers context for z ordering and layers function
-  
-  - [ ] 
+- [x] 
 
 - [ ] Tilemaps
   
   - [x] Create Tilemaps
   
-  - [ ] Store Layers and insert the Tiles in each layer
+  - [ ] Background Image/Scenario of the Map
+  
+  - [ ] Layers
+    
+    - [ ] Store name on layers
+    
+    - [x] Store an array of Layers on the tilemap and insert the Tiles in each layer.
+    
+    - [x] Use the pixi layers context for z ordering and layers function
   
   - [x] Store Tiles, Sprite Size and path for the texture.
     
     - [x] Place sprite on the position of the grid and store on the exportable variable the data
+  
+  - [x] Grid
+    
+    - [x] Draw Grid
+    
+    - [x] Hover functions
+    
+    - [x] Place tile Function
 
 - [x] Tilesets
   
@@ -54,15 +54,27 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   
   - [x] Select tile from Tileset to draw on map
   
-  - [ ] Open JSON
+  - [ ] Open map file (JSON)
   
-  - [ ] Export/Save JSON
+  - [ ] Export/Save map file (JSON)
 
 - [ ] TileMap Editor UI/UX
   
   - [ ] Basic Interface / Functions
     
     - [ ] Layers
+      
+      - [x] Create new Layer
+      
+      - [x] Select current Layer
+      
+      - [ ] Delete current Layer
+      
+      - [ ] Hide Layer Button (Check box)
+      
+      - [ ] Re order Layers
+      
+      - [ ] CSS STYLE (Layer, buttons, change name(label)?)
     
     - [x] Tileset
     
@@ -70,10 +82,8 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     
     - [ ] New Tilemap button
     
-    - [ ] New Tileset button?
+    - [ ] New Tileset button (?)
     
     - [ ] Tools ( Brush, Eraser ) Zoom Input
 
 - [ ] Direct Integration in the game engine (?)
-
-- [ ] Use Svelte for better UI (?)

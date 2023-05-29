@@ -51,6 +51,10 @@ body{
   margin: auto;
 }
 
+.layers-container h3{
+  margin: 0.5rem 0;
+}
+
 .tileset{
   padding: 1px;
   user-select: none;
@@ -58,4 +62,48 @@ body{
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+}
+
+.layer{
+  list-style: none;
+  display: flex;
+  cursor: pointer;
+  background-color: #7B7B7B;
+  align-items: center;
+  border-radius: 5px;
+  padding: 10px 13px;
+  margin-bottom: 0.8rem;
+  border: 1px solid #ccc;
+  justify-content: space-between;
+}
+
+.layer span{
+  font-weight: 500;
+}
+
+.details{
+  display: flex;
+  align-items: center;
+}
+
+.layers-options {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.5rem;
+}
+
+.opt-button{
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: .25rem;
+  background-color: aliceblue;
+}
+
+.opt-button:hover{
+  background-color: rgb(192, 204, 214);
 }

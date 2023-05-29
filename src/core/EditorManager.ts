@@ -1,29 +1,31 @@
 import { Application,  BaseTexture, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
 import { TilemapFile } from "../entities/Tilemap";
 import { Stage } from "@pixi/layers";
+import { createLayerElement } from "../entities/Layer";
 
+
+//TODO Refactor this class to reduce the multiple functions that it makes
 export class EditorManager {
     constructor() { }
 
     private static app: Application;
     private static tilemap: TilemapFile;
     
-    //TODO Separate this in a other class?
     private static tileset: BaseTexture; //stores the atlas of tiles 
 
     //UI variables
     private static selectedTile: [number, number]; //top left position of the current tile from the tileset image in pixels
     private static selectedTileTexture: Texture; //Texture  for swap the sprite 
     private static selectedTileSprite? : Sprite; //Sprite that shows the current tile on the grid
-    
     private static selectedLayer: number;
     
     //UI elements
-
     //TODO check which dont need to be called here an move to main.ts
     private static tilesetImgElement: HTMLImageElement;
-    private static layerContainer: HTMLDivElement;
     private static selectedTileElement: HTMLDivElement;
+    private static layersContainer: HTMLElement;
+    private static addLayerButton: HTMLButtonElement;
+    private static deleteCurrentLayer: HTMLButtonElement;
 
     private static _width: number;
     private static _height: number;
@@ -41,10 +43,6 @@ export class EditorManager {
 
         EditorManager.selectedTile = [0, 0];
         EditorManager.selectedLayer = 0;
-        
-        EditorManager.tilesetImgElement = document.querySelector('.tileset') as HTMLImageElement;
-        EditorManager.layerContainer = document.querySelector('.layers') as HTMLDivElement;
-        EditorManager.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
 
         EditorManager.app = new Application({
             view: document.getElementById('pixi-canvas') as HTMLCanvasElement,
@@ -61,6 +59,37 @@ export class EditorManager {
         EditorManager.app.ticker.add(EditorManager.update)
     }
 
+    //TODO Refactor this function for readability?
+    private static initializeElements() {
+        EditorManager.tilesetImgElement = document.querySelector('.tileset') as HTMLImageElement;
+        EditorManager.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
+        
+        EditorManager.layersContainer = document.querySelector('.layers-list') as HTMLElement;
+        EditorManager.addLayerButton = document.getElementById('add') as HTMLButtonElement;
+        EditorManager.deleteCurrentLayer = document.getElementById('delete') as HTMLButtonElement;
+        
+        const createLayer =  () => {
+            EditorManager.tilemap.createLayer();
+
+            const layer = createLayerElement(EditorManager.tilemap.layers.length - 1);
+            layer.checked = true;
+            EditorManager.selectedLayer = EditorManager.tilemap.layers.length - 1;
+
+            const previousLayer = document.querySelector('.layer');
+            EditorManager.layersContainer.insertBefore(layer, previousLayer);   
+        }
+
+        EditorManager.layersContainer.addEventListener('change', function () {
+            const selectedLayerElement : HTMLInputElement | null = document.querySelector('input[name="Layer"]:checked');
+            EditorManager.selectedLayer = Number(selectedLayerElement!.value);
+        })
+
+        EditorManager.addLayerButton.addEventListener('click',createLayer)
+        
+        createLayer();
+        EditorManager.tilemap.sortChildren(); //Garantees to the grid render always on the front
+    }
+
     /*
     //Used when mouse pan
     public static setCameraPosition(x: number, y: number): void{
@@ -75,12 +104,13 @@ export class EditorManager {
     */
 
     public static createTileMap(tilesetPath: string, numberOfTiles: [number,number], tileSize : [number,number]): void {
-        //CREATE TILEMAP
         EditorManager.tilemap = new TilemapFile(tilesetPath, numberOfTiles, tileSize)
         EditorManager.tilemap.position.x = EditorManager.app.screen.width / 2;
         EditorManager.tilemap.position.y = EditorManager.app.screen.height / 8;
         EditorManager.app.stage.addChild(EditorManager.tilemap);
 
+        EditorManager.initializeElements();
+        
         EditorManager.createTileset(tilesetPath)
     }
 
@@ -90,7 +120,8 @@ export class EditorManager {
         EditorManager.tilesetImgElement.src = tilesetPath;
   
         //getting the first tile texture from the tileset
-        EditorManager.selectedTileTexture = new Texture(EditorManager.tileset, new Rectangle(0, 0, EditorManager.tilemap.tileSize[0], EditorManager.tilemap.tileSize[1]));
+        EditorManager.selectedTileTexture = new Texture(EditorManager.tileset,
+            new Rectangle(0, 0, EditorManager.tilemap.tileSize[0], EditorManager.tilemap.tileSize[1]));
          //Creating sprite for UI
         EditorManager.selectedTileSprite = Sprite.from(EditorManager.selectedTileTexture);
           
@@ -103,15 +134,16 @@ export class EditorManager {
         EditorManager.tilesetImgElement.addEventListener('mousedown', EditorManager.changeCurrentTileTexture)
   
         //Tileset editor
-        const cssParam: string = `outline: 3px solid cyan; left:0; top:0; width:${EditorManager.tilemap.tileSize[0]}px; height:${EditorManager.tilemap.tileSize[1]}px;`;
+        const cssParam: string = `outline: 3px solid cyan; left:0; top:0; 
+                                    width:${EditorManager.tilemap.tileSize[0]}px; height:${EditorManager.tilemap.tileSize[1]}px;`;
         EditorManager.selectedTileElement.setAttribute('style', cssParam);
   
     }
 
+    //GRID functions
     public static placeTile(gridPos : Point) : void {
         EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, EditorManager.selectedTile, EditorManager.selectedLayer);
     }
-
     public static showCurrentTileOnGrid(gridRef: DisplayObject): void {
         if (EditorManager.selectedTileSprite) {
             EditorManager.selectedTileSprite.renderable = true;
@@ -127,6 +159,7 @@ export class EditorManager {
         }
     }
 
+    //TILESET event
     private static changeCurrentTileTexture(e: MouseEvent) {
         const {x,y} = EditorManager.tilesetImgElement.getBoundingClientRect();
         const mouseX = e.clientX - x;

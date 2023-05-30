@@ -82,7 +82,8 @@ export class TilemapFile extends Container implements ITilemap{
         }
         const layer: MapLayer = new MapLayer(tiles)
         this.layers.push(layer);
-        layer.zOrder = this.layers.length - 1;
+        layer.setLayerZRender(this.layers.length - 1);
+        //layer.zOrder = this.layers.length - 1;
 
         this.addChild(layer);
     }

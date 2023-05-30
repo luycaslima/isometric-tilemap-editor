@@ -8,10 +8,16 @@
   </head>
   <body>
       <canvas id="pixi-canvas"></canvas>
-      <aside  class="editor-container"> 
-        <h3>TILES</h3>
+      <aside class="editor-container">
+        <div class="top-menu">
+          <h3>TILES</h3>
+          <div>
+            <button class="open">Open</button>
+            <button class="export">Export</button>
+          </div>
+        </div> 
         <div class="tileset-container">
-          <img src="" class="tileset" crossorigin>
+          <img src="" class="tileset no-select" crossorigin>
           <div class="selected-tile-container"></div>
         </div>
         <div class="layers-container">
@@ -19,13 +25,17 @@
           <div class="layers">
             <form class="layers-list">
             </form>
-            <div class="layers-options">
-              <button id="add" class="opt-button">
-                ➕
-              </button>
-              <button id="delete" class="opt-button"> 
-                ➖
-              </button>
+          </div>
+          <div class="layers-options">
+            <button id="add" class="opt-button noselect">
+              ➕
+            </button>
+            <button id="delete" class="opt-button noselect"> 
+              🗑️
+            </button>
+            <div>
+              <span>Grid: </span> 
+              <input id="toggle-grid" type="checkbox"></input>
             </div>
           </div>
         </div>

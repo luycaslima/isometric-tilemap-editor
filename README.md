@@ -57,6 +57,8 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   - [ ] Open map file (JSON)
   
   - [ ] Export/Save map file (JSON)
+    
+    - [ ] How save nested objects
 
 - [ ] TileMap Editor UI/UX
   
@@ -72,13 +74,17 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
       
       - [ ] Hide Layer Button (Check box)
       
+      - [x] Toggle Grid
+      
       - [ ] Re order Layers
       
-      - [ ] CSS STYLE (Layer, buttons, change name(label)?)
+      - [x] CSS STYLE (Layer, buttons, change name(label)?)
     
     - [x] Tileset
     
-    - [ ] Export button
+    - [x] Export button
+    
+    - [x] Open button
     
     - [ ] New Tilemap button
     

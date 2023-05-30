@@ -20,12 +20,14 @@ export class EditorManager {
     private static selectedLayer: number;
     
     //UI elements
-    //TODO check which dont need to be called here an move to main.ts
+    //TODO Separate this in another class?
     private static tilesetImgElement: HTMLImageElement;
     private static selectedTileElement: HTMLDivElement;
     private static layersContainer: HTMLElement;
     private static addLayerButton: HTMLButtonElement;
     private static deleteCurrentLayer: HTMLButtonElement;
+    private static toggleGridCheckbox: HTMLInputElement;
+    private static exportFileButton: HTMLButtonElement;
 
     private static _width: number;
     private static _height: number;
@@ -60,33 +62,47 @@ export class EditorManager {
     }
 
     //TODO Refactor this function for readability?
-    private static initializeElements() {
+    private static initializeToolsElements() {
         EditorManager.tilesetImgElement = document.querySelector('.tileset') as HTMLImageElement;
         EditorManager.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
         
         EditorManager.layersContainer = document.querySelector('.layers-list') as HTMLElement;
         EditorManager.addLayerButton = document.getElementById('add') as HTMLButtonElement;
         EditorManager.deleteCurrentLayer = document.getElementById('delete') as HTMLButtonElement;
+        EditorManager.exportFileButton = document.querySelector('.export') as HTMLButtonElement;
         
-        const createLayer =  () => {
+        //TODO check if this functionality is really necessary
+        EditorManager.toggleGridCheckbox = document.getElementById('toggle-grid') as HTMLInputElement;
+        EditorManager.toggleGridCheckbox.checked = true;
+        
+        const createLayElement =  () => {
             EditorManager.tilemap.createLayer();
 
-            const layer = createLayerElement(EditorManager.tilemap.layers.length - 1);
-            layer.checked = true;
-            EditorManager.selectedLayer = EditorManager.tilemap.layers.length - 1;
-
             const previousLayer = document.querySelector('.layer');
-            EditorManager.layersContainer.insertBefore(layer, previousLayer);   
+            const layerContainer = createLayerElement(EditorManager.tilemap.layers.length - 1);
+            
+            EditorManager.selectedLayer = EditorManager.tilemap.layers.length - 1;
+            EditorManager.layersContainer.insertBefore(layerContainer, previousLayer);
         }
 
         EditorManager.layersContainer.addEventListener('change', function () {
             const selectedLayerElement : HTMLInputElement | null = document.querySelector('input[name="Layer"]:checked');
             EditorManager.selectedLayer = Number(selectedLayerElement!.value);
+
+        })
+        EditorManager.toggleGridCheckbox.addEventListener('change', function() {
+            EditorManager.tilemap.toggleGrid();
         })
 
-        EditorManager.addLayerButton.addEventListener('click',createLayer)
+        EditorManager.exportFileButton.addEventListener('click', function () {
+            //TODO how serialize nested objects
+            console.log(JSON.stringify(EditorManager.tilemap, ['tilesetPath','mapSize','tileSize','layers']));
+        })
+
+        EditorManager.addLayerButton.addEventListener('click',createLayElement)
+        EditorManager.deleteCurrentLayer.addEventListener('click',function(){})
         
-        createLayer();
+        createLayElement();
         EditorManager.tilemap.sortChildren(); //Garantees to the grid render always on the front
     }
 
@@ -109,7 +125,7 @@ export class EditorManager {
         EditorManager.tilemap.position.y = EditorManager.app.screen.height / 8;
         EditorManager.app.stage.addChild(EditorManager.tilemap);
 
-        EditorManager.initializeElements();
+        EditorManager.initializeToolsElements();
         
         EditorManager.createTileset(tilesetPath)
     }
@@ -144,6 +160,8 @@ export class EditorManager {
     public static placeTile(gridPos : Point) : void {
         EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, EditorManager.selectedTile, EditorManager.selectedLayer);
     }
+
+
     public static showCurrentTileOnGrid(gridRef: DisplayObject): void {
         if (EditorManager.selectedTileSprite) {
             EditorManager.selectedTileSprite.renderable = true;

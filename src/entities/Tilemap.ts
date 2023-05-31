@@ -1,28 +1,44 @@
 import { Container, Graphics, Point, Polygon, Texture} from "pixi.js";
-import { SpriteSize, Tile } from "./Tiles";
+import { ITile, SpriteSize, Tile } from "./Tiles";
 import { EditorManager } from "../core/EditorManager";
-import { MapLayer } from "./Layer";
+import { ILayer, MapLayer } from "./Layer";
+import { Layer } from "@pixi/layers";
 
-//Export Json
+export function exportTilemap(tilemap: TilemapFile): string{
+    const layers: Array<ILayer> = [];
+    for (let i = 0; i < tilemap.layers.length; i++) {
+        const tiles: Array<ITile> = Array.from(tilemap.layers[i].tileDictonary.values()) ;
+        layers.push({
+            name: tilemap.layers[i].name,
+            renderOrder: tilemap.layers[i].renderOrder,
+            createdTiles: tiles
+        } as ILayer)
+    }
+
+    return JSON.stringify({
+        tilesetPath: tilemap.tilesetPath,
+        mapSize: tilemap.tileSize,
+        tileSize: tilemap.tileSize,
+        layers : layers
+    })
+}
+
+
 export interface ITilemap {
     tilesetPath: string;
     mapSize: [number, number]; //Number of tiles in the map width x height
     tileSize: [number, number]; //Size of each tile
     layers: Array<MapLayer>;
-    //tiles: Array<Array< Tile | undefined>>
 }
 
 
 export class TilemapFile extends Container implements ITilemap{
-    //Only export the interface
     tilesetPath: string;
     mapSize: [number, number];
     tileSize: [number, number];
     layers: Array<MapLayer>;
-    
-    //tiles: Array<Array <Tile | undefined>>; //representation on screen the layer will store each a widthxheight array
-
-    private grid: Container;
+   
+    private grid: Layer;
     private gridSquares: GridSquare[]; //easy access for the grid squares if size edit is necessary.
 
     constructor(path : string, numberOfTiles:[number,number], tilesize: [number,number]) {
@@ -31,11 +47,11 @@ export class TilemapFile extends Container implements ITilemap{
         this.mapSize = numberOfTiles
         this.tileSize = tilesize;
         this.layers = [];
-        //this.tiles =[];
         
         //TODO how to garanteee that the grid will always be over everything
-        this.grid = new Container();
-        this.grid.zIndex = 1000;
+        this.grid = new Layer();
+        this.grid.group.enableSort = true;
+        this.grid.zOrder = 1000;
         this.gridSquares = [];
         
         this.createGrid();
@@ -83,21 +99,31 @@ export class TilemapFile extends Container implements ITilemap{
         const layer: MapLayer = new MapLayer(tiles)
         this.layers.push(layer);
         layer.setLayerZRender(this.layers.length - 1);
-        //layer.zOrder = this.layers.length - 1;
 
         this.addChild(layer);
     }
 
-    //TODO move to the layer class the operations , same with delete tile
+    //TODO Refactor this cursed function
     public drawAndSaveTile(texture : Texture, gridPos : Point , selectedTile: [number,number],selectedLayer: number) : void{
         if (this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] === undefined) {
             const tile = new Tile(gridPos, texture, selectedTile, {w: this.tileSize[0], h: this.tileSize[1]} as SpriteSize);
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] = tile;
             this.layers[selectedLayer].addChild(tile);
             this.layers[selectedLayer].sortChildren();
-            //this.sortChildren();
-        
+            
+            this.layers[selectedLayer].tileDictonary.set(`${gridPos.x},${gridPos.y}`, {
+                tilesetTile: [selectedTile[0], selectedTile[1]],
+                isoPosition: tile.isoPosition,
+                gridPosition: {x:gridPos.x ,y: gridPos.y},
+                depth: tile.depth,
+                tileType: tile.tileType
+           } as ITile)
+            
         } else {
+            const tile = this.layers[selectedLayer].tileDictonary.get(`${gridPos.x},${gridPos.y}`);
+            tile!.tilesetTile = [selectedTile[0], selectedTile[1]];
+            this.layers[selectedLayer].tileDictonary.set(`${gridPos.x},${gridPos.y}`, tile!);
+            
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!.changeTexture(texture);
         }
     }
@@ -142,7 +168,7 @@ class GridSquare extends Graphics{
         this.on('mouseout', this.outHover);
     }
 
-    onHover() {
+    private onHover() {
         //Show the current sprite in the grid position 
         EditorManager.showCurrentTileOnGrid(this);
         this.clear();
@@ -153,7 +179,7 @@ class GridSquare extends Graphics{
         this.endFill()
     }
 
-    outHover() {
+    private outHover() {
         //hide it
         EditorManager.hideCurrentTileOnGrid();
         this.clear();
@@ -163,8 +189,7 @@ class GridSquare extends Graphics{
         this.endFill();
     }
 
-    placeTile() {
-        EditorManager.placeTile(this.gridPosition); //TODO pass the square reference to calculate the real position
-        //console.log(`x:${this.gridPosition.x} y:${this.gridPosition.y}`);
+    private placeTile() {
+        EditorManager.placeTile(this.gridPosition);
     }
 }

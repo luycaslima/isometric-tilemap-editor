@@ -1,5 +1,5 @@
 import { Layer } from "@pixi/layers";
-import { Tile } from "./Tiles";
+import { ITile, Tile } from "./Tiles";
 
 export function createLayerElement(id : number): HTMLDivElement {
     const divContainer : HTMLDivElement = document.createElement('div');
@@ -24,24 +24,23 @@ export function createLayerElement(id : number): HTMLDivElement {
     divContainer.appendChild(label);
     divContainer.appendChild(breakPoint);
 
-    //TODO Fazer o Css do layer
-    //TODO ENtender como reordenar radio inputs como lista <li>
+    //TODO Entender como reordenar radio inputs como lista <li>
     //https://www.codingnepalweb.com/drag-and-drop-sortable-list-html-javascript/   
     return divContainer;
 }
 
-
+//TODO Have a flag to identify if this layer is purely for decoration?
 export interface ILayer {
-
     renderOrder: number;
     name: string;
-    tiles: Array<Array<Tile | undefined>>;
+    createdTiles: Array<ITile>;
 }
 
-//const layerElement: HTMLDivElement ;
-
-export class MapLayer extends Layer implements ILayer{ 
-    tiles: Array<Array<Tile | undefined>>;
+//TODO refactor and see if only a map is necessary
+export class MapLayer extends Layer { 
+    tiles: Array<Array<Tile | undefined>>; 
+    //Create map 
+    tileDictonary: Map<string, ITile>;
     renderOrder: number = 0;
     name: string;
 
@@ -50,6 +49,7 @@ export class MapLayer extends Layer implements ILayer{
         this.name = `Layer`;
         this.tiles = tiles
         this.group.enableSort = true;
+        this.tileDictonary = new Map();
     }
 
     setLayerZRender(value: number) {

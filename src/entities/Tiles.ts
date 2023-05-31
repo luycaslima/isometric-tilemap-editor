@@ -27,7 +27,7 @@ export interface ITile {
     tilesetTile: [number, number];
     isoPosition: Vector2;
     gridPosition: Vector2;
-    z: number; // Height of the tile (zIndex)
+    depth: number; //depth
     tileType: TileType;
 }
 
@@ -35,7 +35,7 @@ export class Tile extends Container implements ITile{
     tilesetTile: [number, number];
     isoPosition: Vector2;
     gridPosition: Vector2;
-    z: number; // Height of the tile (zIndex)
+    depth: number; // depth
     tileType: TileType;
     
     private sprite : Sprite
@@ -50,7 +50,7 @@ export class Tile extends Container implements ITile{
         this.sprite = new Sprite(texture);
 
         this.zIndex = gridPosition.x + gridPosition.y;
-        this.z = 0;
+        this.depth = this.zIndex;
 
         this.isoPosition = toScreenCoordinates(gridPosition,spriteSize); //Attetion to convertion from point to vector2
         
@@ -63,39 +63,5 @@ export class Tile extends Container implements ITile{
     public changeTexture(texture: Texture) {
         this.sprite.texture = texture;
     }
+
 }
-
-/*
-export class Tile extends Container implements ITile{
-    public sprite: Sprite;
-
-    public gridPosition: Point;
-    public isoPosition: Point;
-    
-    public isWalkable: boolean;
-    public isSpawner: boolean;
-
-    constructor(gridPosition: Point, texture: Texture) {
-        super();   
-        this.gridPosition = gridPosition;
-        this.sprite = new Sprite(texture)
-  
-        this.isoPosition = toScreenCoordinates(gridPosition);
-        
-        this.isWalkable = true;
-        this.isSpawner = false;
-
-        this.eventMode = 'static'
-        this.on('click',this.selectTile);
-
-        this.position.x = this.isoPosition.x;
-        this.position.y = this.isoPosition.y;
-
-        this.addChild(this.sprite);
-    }
-
-    private selectTile() {
-        console.log(`Selected tile : x:${this.gridPosition.x} y:${this.gridPosition.y}`)
-    }
-
-}*/

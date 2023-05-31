@@ -8,8 +8,6 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 - [x] Tile interface
 
-- [x] 
-
 - [ ] Tilemaps
   
   - [x] Create Tilemaps
@@ -18,7 +16,11 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   
   - [ ] Layers
     
-    - [ ] Store name on layers
+    - [x] Store name on layers
+      
+      - [ ] use the name variable
+    
+    - [ ] Refactor the matrix of tiles to use only a Map of created Tiles
     
     - [x] Store an array of Layers on the tilemap and insert the Tiles in each layer.
     
@@ -58,7 +60,7 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   
   - [ ] Export/Save map file (JSON)
     
-    - [ ] How save nested objects
+    - [x] How save nested objects
 
 - [ ] TileMap Editor UI/UX
   

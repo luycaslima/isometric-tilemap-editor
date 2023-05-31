@@ -124,3 +124,7 @@ body{
   display: flex;
   justify-content: space-between;
 }
+
+.file-btn{
+  cursor: pointer;
+}

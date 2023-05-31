@@ -1,5 +1,5 @@
 import { Application,  BaseTexture, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
-import { TilemapFile } from "../entities/Tilemap";
+import { TilemapFile, exportTilemap } from "../entities/Tilemap";
 import { Stage } from "@pixi/layers";
 import { createLayerElement } from "../entities/Layer";
 
@@ -61,7 +61,7 @@ export class EditorManager {
         EditorManager.app.ticker.add(EditorManager.update)
     }
 
-    //TODO Refactor this function for readability?
+    //TODO Refactor this ridiculous bigass function 
     private static initializeToolsElements() {
         EditorManager.tilesetImgElement = document.querySelector('.tileset') as HTMLImageElement;
         EditorManager.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
@@ -95,12 +95,12 @@ export class EditorManager {
         })
 
         EditorManager.exportFileButton.addEventListener('click', function () {
-            //TODO how serialize nested objects
-            console.log(JSON.stringify(EditorManager.tilemap, ['tilesetPath','mapSize','tileSize','layers']));
+            //TODO  show filemanager to save in a json file
+            console.log(exportTilemap(EditorManager.tilemap));
         })
 
         EditorManager.addLayerButton.addEventListener('click',createLayElement)
-        EditorManager.deleteCurrentLayer.addEventListener('click',function(){})
+        EditorManager.deleteCurrentLayer.addEventListener('click',function(){}) //TODO delete current layer and reorder layers
         
         createLayElement();
         EditorManager.tilemap.sortChildren(); //Garantees to the grid render always on the front

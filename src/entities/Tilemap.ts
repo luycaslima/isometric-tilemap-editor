@@ -1,28 +1,8 @@
 import { Container, Graphics, Point, Polygon, Texture} from "pixi.js";
 import { ITile, SpriteSize, Tile } from "./Tiles";
 import { EditorManager } from "../core/EditorManager";
-import { ILayer, MapLayer } from "./Layer";
+import { MapLayer } from "./Layer";
 import { Layer } from "@pixi/layers";
-
-export function exportTilemap(tilemap: TilemapFile): string{
-    const layers: Array<ILayer> = [];
-    for (let i = 0; i < tilemap.layers.length; i++) {
-        const tiles: Array<ITile> = Array.from(tilemap.layers[i].tileDictonary.values()) ;
-        layers.push({
-            name: tilemap.layers[i].name,
-            renderOrder: tilemap.layers[i].renderOrder,
-            createdTiles: tiles
-        } as ILayer)
-    }
-
-    return JSON.stringify({
-        tilesetPath: tilemap.tilesetPath,
-        mapSize: tilemap.tileSize,
-        tileSize: tilemap.tileSize,
-        layers : layers
-    })
-}
-
 
 export interface ITilemap {
     tilesetPath: string;
@@ -50,12 +30,11 @@ export class TilemapFile extends Container implements ITilemap{
         
         //TODO how to garanteee that the grid will always be over everything
         this.grid = new Layer();
-        this.grid.group.enableSort = true;
         this.grid.zOrder = 1000;
+        this.grid.group.enableSort = true;
         this.gridSquares = [];
         
         this.createGrid();
-        //this.createLayer();
         this.sortChildren();
     }
 
@@ -104,9 +83,9 @@ export class TilemapFile extends Container implements ITilemap{
     }
 
     //TODO Refactor this cursed function
-    public drawAndSaveTile(texture : Texture, gridPos : Point , selectedTile: [number,number],selectedLayer: number) : void{
+    public drawAndSaveTile(texture : Texture, gridPos : Point, zHeight : number , selectedTile: [number,number],selectedLayer: number) : void{
         if (this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] === undefined) {
-            const tile = new Tile(gridPos, texture, selectedTile, {w: this.tileSize[0], h: this.tileSize[1]} as SpriteSize);
+            const tile = new Tile(gridPos, zHeight ,texture, selectedTile, {w: this.tileSize[0], h: this.tileSize[1]} as SpriteSize);
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] = tile;
             this.layers[selectedLayer].addChild(tile);
             this.layers[selectedLayer].sortChildren();
@@ -116,6 +95,7 @@ export class TilemapFile extends Container implements ITilemap{
                 isoPosition: tile.isoPosition,
                 gridPosition: {x:gridPos.x ,y: gridPos.y},
                 depth: tile.depth,
+                zHeight: zHeight,
                 tileType: tile.tileType
            } as ITile)
             
@@ -124,6 +104,7 @@ export class TilemapFile extends Container implements ITilemap{
             tile!.tilesetTile = [selectedTile[0], selectedTile[1]];
             this.layers[selectedLayer].tileDictonary.set(`${gridPos.x},${gridPos.y}`, tile!);
             
+            this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!.recalculateHeight(zHeight);
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!.changeTexture(texture);
         }
     }
@@ -135,10 +116,8 @@ export class TilemapFile extends Container implements ITilemap{
         }
     }
 
-    public toggleGrid() : void {
-        this.gridSquares.forEach(square => {
-            square.renderable = !square.renderable;
-        });
+    public toggleGrid(): void {
+        this.grid.renderable = !this.grid.renderable;
     }
 }
 

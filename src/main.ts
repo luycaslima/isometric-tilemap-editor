@@ -1,7 +1,6 @@
 import './style.css'
 import { EditorManager } from './core/EditorManager';
 
-
 //TODO criar uma promise que carrega a img do tileset com Assets loading
 
 //shift +click para remover o tile (no container de tile set selecionar mais de um?)

@@ -5,9 +5,8 @@ export interface SpriteSize {
     h: number
 }
 
-//Converte grid position to  isometric position
+//Convert grid position to  isometric position
 export function toScreenCoordinates(gridPosition: Point, spriteSize : SpriteSize): Point {
-    //Multiply by halfbecause of the offset of 0 on the canvas
     return {
         x: (gridPosition.x * spriteSize.w / 2  - gridPosition.y  * spriteSize.w /2) - (spriteSize.w/2),
         y: gridPosition.x *  spriteSize.h / 4  + gridPosition.y  * spriteSize.h /4 - (spriteSize.h/2) 
@@ -18,50 +17,74 @@ export function toScreenCoordinates(gridPosition: Point, spriteSize : SpriteSize
 export interface Vector2{
     x: number;
     y: number;
-}
+}//TODO adicionar o z aqui
 
 type TileType = "SPAWNER" | "NORMAL";
 
 export interface ITile {
-    //the position on the tileset atlas of the tile (value of the grid* tileset size)
+    //the position of the tile on the tileset basetexture (value of the grid* tileset size)
     tilesetTile: [number, number];
     isoPosition: Vector2;
+    zHeight: number;
     gridPosition: Vector2;
     depth: number; //depth
     tileType: TileType;
+    //TODO implement cache neighbours
+    //neighbours: [Vector2 | undefined, Vector2 | undefined, Vector2 | undefined, Vector2 | undefined]
 }
 
 export class Tile extends Container implements ITile{
     tilesetTile: [number, number];
     isoPosition: Vector2;
+    zHeight: number;
     gridPosition: Vector2;
-    depth: number; // depth
+    depth: number; // depth - order of rendering
     tileType: TileType;
     
     private sprite : Sprite
+    private spriteSize : SpriteSize
 
-
-    constructor(gridPosition: Point, texture: Texture, tilesetPos : [number,number], spriteSize : SpriteSize) {
+    constructor(gridPosition: Point, z: number,texture: Texture, tilesetPos : [number,number], spriteSize : SpriteSize) {
         super();
 
         this.tileType = 'NORMAL';
         this.tilesetTile = tilesetPos;
         this.gridPosition = gridPosition; //Attetion to convertion from point to vector2
         this.sprite = new Sprite(texture);
+        this.spriteSize = spriteSize;
+
 
         this.zIndex = gridPosition.x + gridPosition.y;
         this.depth = this.zIndex;
+        this.zHeight = z;
 
         this.isoPosition = toScreenCoordinates(gridPosition,spriteSize); //Attetion to convertion from point to vector2
         
         this.position.x = this.isoPosition.x;
-        this.position.y = this.isoPosition.y;
+        this.recalculateHeight(z);
+        //const heightOffset: number = -(spriteSize.h / 2) * z;
+        //this.position.y = this.isoPosition.y + heightOffset;
 
         this.addChild(this.sprite);
     }
 
-    public changeTexture(texture: Texture) {
+    public changeTexture(texture: Texture) : void {
         this.sprite.texture = texture;
+    }
+
+    public recalculateHeight(z: number): void{
+        const heightOffset: number = -(this.spriteSize.h / 2) * z;
+        this.zHeight = z;
+        this.isoPosition.y = this.isoPosition.y + heightOffset;
+        this.position.y = this.isoPosition.y
+    }
+
+    //TODO check if need to show which tile is being selected
+    public onHover() {
+        this.sprite.tint = 0x232323;
+    }
+    public outHover() {
+        this.sprite.tint = 0xFFFFFF;
     }
 
 }

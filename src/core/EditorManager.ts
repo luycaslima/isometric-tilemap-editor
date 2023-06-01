@@ -1,8 +1,7 @@
 import { Application,  BaseTexture, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
-import { TilemapFile, exportTilemap } from "../entities/Tilemap";
+import { TilemapFile } from "../entities/Tilemap";
 import { Stage } from "@pixi/layers";
-import { createLayerElement } from "../entities/Layer";
-
+import { createLayerElement, exportTilemap } from "./Utils";
 
 //TODO Refactor this class to reduce the multiple functions that it makes
 export class EditorManager {
@@ -20,7 +19,6 @@ export class EditorManager {
     private static selectedLayer: number;
     
     //UI elements
-    //TODO Separate this in another class?
     private static tilesetImgElement: HTMLImageElement;
     private static selectedTileElement: HTMLDivElement;
     private static layersContainer: HTMLElement;
@@ -28,6 +26,7 @@ export class EditorManager {
     private static deleteCurrentLayer: HTMLButtonElement;
     private static toggleGridCheckbox: HTMLInputElement;
     private static exportFileButton: HTMLButtonElement;
+    private static zHeightInput: HTMLInputElement;
 
     private static _width: number;
     private static _height: number;
@@ -55,14 +54,83 @@ export class EditorManager {
             height: height
         });
         EditorManager.app.stage = new Stage();
-
+        EditorManager.initUIElements();
         //Pixel art style
         BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
         EditorManager.app.ticker.add(EditorManager.update)
     }
 
-    //TODO Refactor this ridiculous bigass function 
-    private static initializeToolsElements() {
+    public static update(_delta: number) : void{
+        
+    }
+
+    /*
+    //Used when mouse pan
+    public static setCameraPosition(x: number, y: number): void{
+        EditorManager.app.stage.pivot.x = x;
+        EditorManager.app.stage.pivot.y = y;
+    }
+    
+    //used when mouse wheel 
+    public static setCameraZoom(zoom: number) : void {
+        EditorManager.app.stage.scale.set(zoom);
+    }
+    */
+
+    public static createTileMap(tilesetPath: string, numberOfTiles: [number,number], tileSize : [number,number]): void {
+        EditorManager.tilemap = new TilemapFile(tilesetPath, numberOfTiles, tileSize)
+        EditorManager.tilemap.position.x = EditorManager.app.screen.width / 2;
+        EditorManager.tilemap.position.y = EditorManager.app.screen.height / 8;
+        EditorManager.app.stage.addChild(EditorManager.tilemap);
+
+        EditorManager.initUITilemapFunctions();
+        EditorManager.createTileset(tilesetPath)
+    }
+
+    public static createTileset(tilesetPath: string) : void {
+        //TODO create separatly or use ONLY one atlas image for each tilemap?
+        EditorManager.tileset = BaseTexture.from(tilesetPath);
+        EditorManager.initUITileset(tilesetPath);
+       
+        //getting the first tile texture from the tileset
+        EditorManager.selectedTileTexture = new Texture(EditorManager.tileset,
+            new Rectangle(0, 0, EditorManager.tilemap.tileSize[0], EditorManager.tilemap.tileSize[1]));
+         //Creating sprite for UI
+        EditorManager.selectedTileSprite = Sprite.from(EditorManager.selectedTileTexture);
+          
+        EditorManager.selectedTileSprite.alpha = 0.5;
+        EditorManager.selectedTileSprite.renderable = false;
+        EditorManager.app.stage.addChild(EditorManager.selectedTileSprite);
+  
+    }
+
+    //GRID functions
+    public static placeTile(gridPos: Point): void {
+        const height = EditorManager.getZHeight();
+        EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, height
+            , EditorManager.selectedTile, EditorManager.selectedLayer);
+    }
+
+
+    public static showCurrentTileOnGrid(gridRef: DisplayObject): void {
+        if (EditorManager.selectedTileSprite) {
+            EditorManager.selectedTileSprite.renderable = true;
+            
+            const heightOffset = -(EditorManager.tilemap.tileSize[1] / 2) * EditorManager.getZHeight();
+            //Why need divide by half the tile to center on the grid?
+            const { x, y } = new Point(gridRef.parent.position.y - EditorManager.tilemap.tileSize[0] / 2
+                                        , gridRef.parent.position.y - EditorManager.tilemap.tileSize[1] / 2 + heightOffset); //HALF the size to center
+            EditorManager.selectedTileSprite.position = gridRef.toGlobal({x,y} as Point);
+        }
+    }
+
+    public static hideCurrentTileOnGrid() {
+        if (EditorManager.selectedTileSprite) {
+            EditorManager.selectedTileSprite.renderable = false;
+        }
+    }
+
+    private static initUIElements() {
         EditorManager.tilesetImgElement = document.querySelector('.tileset') as HTMLImageElement;
         EditorManager.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
         
@@ -70,11 +138,13 @@ export class EditorManager {
         EditorManager.addLayerButton = document.getElementById('add') as HTMLButtonElement;
         EditorManager.deleteCurrentLayer = document.getElementById('delete') as HTMLButtonElement;
         EditorManager.exportFileButton = document.querySelector('.export') as HTMLButtonElement;
-        
-        //TODO check if this functionality is really necessary
+        EditorManager.zHeightInput = document.getElementById('z-height') as HTMLInputElement;
+
         EditorManager.toggleGridCheckbox = document.getElementById('toggle-grid') as HTMLInputElement;
         EditorManager.toggleGridCheckbox.checked = true;
-        
+    }
+
+    private static initUITilemapFunctions() {
         const createLayElement =  () => {
             EditorManager.tilemap.createLayer();
 
@@ -103,81 +173,19 @@ export class EditorManager {
         EditorManager.deleteCurrentLayer.addEventListener('click',function(){}) //TODO delete current layer and reorder layers
         
         createLayElement();
-        EditorManager.tilemap.sortChildren(); //Garantees to the grid render always on the front
     }
 
-    /*
-    //Used when mouse pan
-    public static setCameraPosition(x: number, y: number): void{
-        EditorManager.app.stage.pivot.x = x;
-        EditorManager.app.stage.pivot.y = y;
-    }
-    
-    //used when mouse wheel 
-    public static setCameraZoom(zoom: number) : void {
-        EditorManager.app.stage.scale.set(zoom);
-    }
-    */
-
-    public static createTileMap(tilesetPath: string, numberOfTiles: [number,number], tileSize : [number,number]): void {
-        EditorManager.tilemap = new TilemapFile(tilesetPath, numberOfTiles, tileSize)
-        EditorManager.tilemap.position.x = EditorManager.app.screen.width / 2;
-        EditorManager.tilemap.position.y = EditorManager.app.screen.height / 8;
-        EditorManager.app.stage.addChild(EditorManager.tilemap);
-
-        EditorManager.initializeToolsElements();
-        
-        EditorManager.createTileset(tilesetPath)
-    }
-
-    public static createTileset(tilesetPath: string) : void {
-        //TODO create separatly or use ONLY one atlas image for each tilemap?
-        EditorManager.tileset = BaseTexture.from(tilesetPath);
+    private static initUITileset(tilesetPath : string) {
         EditorManager.tilesetImgElement.src = tilesetPath;
-  
-        //getting the first tile texture from the tileset
-        EditorManager.selectedTileTexture = new Texture(EditorManager.tileset,
-            new Rectangle(0, 0, EditorManager.tilemap.tileSize[0], EditorManager.tilemap.tileSize[1]));
-         //Creating sprite for UI
-        EditorManager.selectedTileSprite = Sprite.from(EditorManager.selectedTileTexture);
-          
-       
-        EditorManager.selectedTileSprite.alpha = 0.5;
-        EditorManager.selectedTileSprite.renderable = false;
-        EditorManager.app.stage.addChild(EditorManager.selectedTileSprite);
-  
-        //TODO call this on another place?
         EditorManager.tilesetImgElement.addEventListener('mousedown', EditorManager.changeCurrentTileTexture)
-  
-        //Tileset editor
+        
         const cssParam: string = `outline: 3px solid cyan; left:0; top:0; 
-                                    width:${EditorManager.tilemap.tileSize[0]}px; height:${EditorManager.tilemap.tileSize[1]}px;`;
+                                     width:${EditorManager.tilemap.tileSize[0]}px; height:${EditorManager.tilemap.tileSize[1]}px;`;
         EditorManager.selectedTileElement.setAttribute('style', cssParam);
-  
-    }
-
-    //GRID functions
-    public static placeTile(gridPos : Point) : void {
-        EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, EditorManager.selectedTile, EditorManager.selectedLayer);
     }
 
 
-    public static showCurrentTileOnGrid(gridRef: DisplayObject): void {
-        if (EditorManager.selectedTileSprite) {
-            EditorManager.selectedTileSprite.renderable = true;
-            //Why need divide by half the tile to center on the grid?
-            const { x, y } = new Point(gridRef.parent.position.y - EditorManager.tilemap.tileSize[0] / 2
-                                        , gridRef.parent.position.y - EditorManager.tilemap.tileSize[1] / 2); //HALF the size to center
-            EditorManager.selectedTileSprite.position = gridRef.toGlobal({x,y} as Point);
-        }
-    }
-    public static hideCurrentTileOnGrid() {
-        if (EditorManager.selectedTileSprite) {
-            EditorManager.selectedTileSprite.renderable = false;
-        }
-    }
-
-    //TILESET event
+    //This doesnt work in a insntanced class
     private static changeCurrentTileTexture(e: MouseEvent) {
         const {x,y} = EditorManager.tilesetImgElement.getBoundingClientRect();
         const mouseX = e.clientX - x;
@@ -199,11 +207,7 @@ export class EditorManager {
         EditorManager.selectedTileTexture = new Texture(EditorManager.tileset, rect);
         if (EditorManager.selectedTileSprite) EditorManager.selectedTileSprite.texture = EditorManager.selectedTileTexture;
     }
-
-    public static update(_delta: number) : void{
-        
+    private static getZHeight(): number{
+        return Number(EditorManager.zHeightInput.value);
     }
-
-
-
 }

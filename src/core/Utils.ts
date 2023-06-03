@@ -2,10 +2,10 @@ import { ILayer } from "../entities/Layer";
 import { TilemapFile } from "../entities/Tilemap";
 import { ITile } from "../entities/Tiles";
 
+//TODO remove this and limit only to 3 layers
 export function createLayerElement(id : number): HTMLDivElement {
     const divContainer : HTMLDivElement = document.createElement('div');
     divContainer.className = 'layer';
-    divContainer.draggable = true;
     divContainer.id = id.toString();
 
     const input: HTMLInputElement = document.createElement('input');   
@@ -13,20 +13,32 @@ export function createLayerElement(id : number): HTMLDivElement {
     input.name = `Layer`;
     input.value = id.toString();
     input.id = `l${id.toString()}`;
-    //input.draggable = true;
-    input.checked = true;
-
+    
     const label : HTMLLabelElement = document.createElement('label');
     label.htmlFor = input.id;
-    label.textContent = `${input.name}  ${Number(Number(id.toString()) + 1)}`;
+
+    let layerName: string = '';
+    
+    switch (id) {
+        case 0:
+            layerName = "Lower Dec. Layer";
+            break;
+        case 1:
+            layerName = "Ground Layer";
+            break;
+        case 2:
+            layerName = "High Dec. Layer";
+            break;
+                    
+    }
+
+    label.textContent = layerName;
     const breakPoint: HTMLBRElement = document.createElement('br');
     
     divContainer.appendChild(input);
     divContainer.appendChild(label);
     divContainer.appendChild(breakPoint);
-
-    //TODO Entender como reordenar radio inputs como lista <li>
-    //https://www.codingnepalweb.com/drag-and-drop-sortable-list-html-javascript/   
+ 
     return divContainer;
 }
 
@@ -50,6 +62,6 @@ export function exportTilemap(tilemap: TilemapFile): string{
     })
 }
 
-export function openTilemap(tilemap: TilemapFile) {
+export function openTilemap(tilemap: TilemapFile) /*: TilemapFile */ {
     
 }

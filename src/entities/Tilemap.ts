@@ -1,5 +1,5 @@
 import { Container, Graphics, Point, Polygon, Texture} from "pixi.js";
-import { ITile, SpriteSize, Tile } from "./Tiles";
+import { ITile, SpriteSize, Tile, Vector2 } from "./Tiles";
 import { EditorManager } from "../core/EditorManager";
 import { MapLayer } from "./Layer";
 import { Layer } from "@pixi/layers";
@@ -28,17 +28,15 @@ export class TilemapFile extends Container implements ITilemap{
         this.tileSize = tilesize;
         this.layers = [];
         
-        //TODO how to garanteee that the grid will always be over everything
         this.grid = new Layer();
         this.grid.zOrder = 1000;
         this.grid.group.enableSort = true;
         this.gridSquares = [];
         
-        this.createGrid();
         this.sortChildren();
     }
 
-    private createGrid() {
+    public createGrid() {
         const tileWidth = this.tileSize[0]; 
         const tileHeight = this.tileSize[1] / 2;
 
@@ -66,54 +64,67 @@ export class TilemapFile extends Container implements ITilemap{
     }
 
     public createLayer() {
-        const tiles : Array<Array< Tile | undefined>> = []
-        let tempTileArray = []; //For filling each row of the array of tiles
-        for (let x = 0; x < this.mapSize[0]; x++) {
-            for (let y = 0; y < this.mapSize[1]; y++) {
-                tempTileArray.push(undefined);
-            }
-            tiles[x] = tempTileArray;
-            tempTileArray = [];
-        }
-        const layer: MapLayer = new MapLayer(tiles)
+        const layer: MapLayer = new MapLayer();
         this.layers.push(layer);
         layer.setLayerZRender(this.layers.length - 1);
 
         this.addChild(layer);
+        this.sortChildren();
     }
 
-    //TODO Refactor this cursed function
     public drawAndSaveTile(texture : Texture, gridPos : Point, zHeight : number , selectedTile: [number,number],selectedLayer: number) : void{
-        if (this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] === undefined) {
-            const tile = new Tile(gridPos, zHeight ,texture, selectedTile, {w: this.tileSize[0], h: this.tileSize[1]} as SpriteSize);
-            this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] = tile;
-            this.layers[selectedLayer].addChild(tile);
+        let tileInstance = this.layers[selectedLayer].tiles.get(`${gridPos.x},${gridPos.y}`);
+        if (!tileInstance) {
+            tileInstance  = new Tile(gridPos, zHeight, texture, selectedTile, { w: this.tileSize[0], h: this.tileSize[1] } as SpriteSize);
+            this.layers[selectedLayer].tiles.set(`${gridPos.x},${gridPos.y}`, tileInstance);
+            this.layers[selectedLayer].addChild(tileInstance);
             this.layers[selectedLayer].sortChildren();
             
             this.layers[selectedLayer].tileDictonary.set(`${gridPos.x},${gridPos.y}`, {
                 tilesetTile: [selectedTile[0], selectedTile[1]],
-                isoPosition: tile.isoPosition,
-                gridPosition: {x:gridPos.x ,y: gridPos.y},
-                depth: tile.depth,
+                isoPosition: tileInstance.isoPosition,
+                gridPosition: { x: gridPos.x, y: gridPos.y },
+                depth: tileInstance.depth,
                 zHeight: zHeight,
-                tileType: tile.tileType
-           } as ITile)
-            
+                tileType: tileInstance.tileType,
+                neighbours: tileInstance.neighbours
+            } as ITile);
+
+
         } else {
             const tile = this.layers[selectedLayer].tileDictonary.get(`${gridPos.x},${gridPos.y}`);
             tile!.tilesetTile = [selectedTile[0], selectedTile[1]];
             this.layers[selectedLayer].tileDictonary.set(`${gridPos.x},${gridPos.y}`, tile!);
             
-            this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!.recalculateHeight(zHeight);
-            this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!.changeTexture(texture);
+            tileInstance!.recalculateHeight(zHeight);
+            tileInstance!.changeTexture(texture);
         }
+
+        this.sortChildren();
     }
 
     public deleteTile(gridPos: Point, selectedLayer: number) : void {
-        if (this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]) {
+        /*if (this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]) {
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] = undefined;
             this.layers[selectedLayer].removeChild(this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!)
+        }*/
+    }
+
+    public cacheNeighbours(): void {
+        const tiles : Array<ITile> = Array.from(this.layers[1].tileDictonary.values());
+        for (const tile of tiles) {
+            tile.neighbours = [
+                this.checkNeighbourAt({ x: tile.gridPosition.x - 1, y: tile.gridPosition.y}),
+                this.checkNeighbourAt({ x: tile.gridPosition.x, y: tile.gridPosition.y + 1}),
+                this.checkNeighbourAt({ x: tile.gridPosition.x + 1, y: tile.gridPosition.y }),
+                this.checkNeighbourAt({ x: tile.gridPosition.x , y: tile.gridPosition.y - 1})
+            ]
+            this.layers[1].tileDictonary.set(`${tile.gridPosition.x},${tile.gridPosition.y}`, tile);
         }
+    }
+
+    private checkNeighbourAt(gridPosition: Vector2): Vector2 | undefined {
+        return this.layers[1].tileDictonary.get(`${gridPosition.x},${gridPosition.y}`)?.gridPosition;
     }
 
     public toggleGrid(): void {

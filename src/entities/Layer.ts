@@ -1,27 +1,28 @@
 import { Layer } from "@pixi/layers";
 import { ITile, Tile } from "./Tiles";
 
-//TODO Have a flag to set the layers as walkable and others for scenario decoration only? ( high side walls, diferent ground on tile?)
-///TODO transform those decorative layers in one texture?
+//TODO Have a flag to set as ground or under or over the ground(both only decorative)
+//TODO transform those decorative layers in one texture?
+//TODO set only 3 layers by default and no add more
 export interface ILayer {
     renderOrder: number;
     name: string;
-    createdTiles: Array<ITile>;
+    createdTiles?: Array<ITile>;
 }
 
-//TODO refactor and see if only a map is necessary
-export class MapLayer extends Layer { 
-    tiles: Array<Array<Tile | undefined>>; 
+export class MapLayer extends Layer implements ILayer { 
     //Create map 
-    tileDictonary: Map<string, ITile>;
+    tiles: Map<string, Tile>; //instances on the screen
+    tileDictonary: Map<string, ITile>; //data that will be exported
+
     renderOrder: number = 0;
     name: string;
 
-    constructor(tiles : Array<Array <Tile | undefined>>) {
+    constructor() {
         super();
         this.name = `Layer`;
-        this.tiles = tiles
         this.group.enableSort = true;
+        this.tiles = new Map();
         this.tileDictonary = new Map();
     }
 

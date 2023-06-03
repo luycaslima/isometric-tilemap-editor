@@ -22,11 +22,10 @@ export class EditorManager {
     private static tilesetImgElement: HTMLImageElement;
     private static selectedTileElement: HTMLDivElement;
     private static layersContainer: HTMLElement;
-    private static addLayerButton: HTMLButtonElement;
-    private static deleteCurrentLayer: HTMLButtonElement;
     private static toggleGridCheckbox: HTMLInputElement;
-    private static exportFileButton: HTMLButtonElement;
+    private static exportFileBtn: HTMLButtonElement;
     private static zHeightInput: HTMLInputElement;
+    private static cacheNeighboursBtn: HTMLButtonElement;
 
     private static _width: number;
     private static _height: number;
@@ -130,31 +129,31 @@ export class EditorManager {
         }
     }
 
+
     private static initUIElements() {
         EditorManager.tilesetImgElement = document.querySelector('.tileset') as HTMLImageElement;
         EditorManager.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
         
         EditorManager.layersContainer = document.querySelector('.layers-list') as HTMLElement;
-        EditorManager.addLayerButton = document.getElementById('add') as HTMLButtonElement;
-        EditorManager.deleteCurrentLayer = document.getElementById('delete') as HTMLButtonElement;
-        EditorManager.exportFileButton = document.querySelector('.export') as HTMLButtonElement;
+        EditorManager.exportFileBtn = document.querySelector('.export') as HTMLButtonElement;
         EditorManager.zHeightInput = document.getElementById('z-height') as HTMLInputElement;
+        EditorManager.cacheNeighboursBtn = document.getElementById('gen-neighbour') as HTMLButtonElement;
 
         EditorManager.toggleGridCheckbox = document.getElementById('toggle-grid') as HTMLInputElement;
         EditorManager.toggleGridCheckbox.checked = true;
     }
 
     private static initUITilemapFunctions() {
+       
+        
+        //TODO make only 3 layers
         const createLayElement =  () => {
             EditorManager.tilemap.createLayer();
-
             const previousLayer = document.querySelector('.layer');
             const layerContainer = createLayerElement(EditorManager.tilemap.layers.length - 1);
-            
-            EditorManager.selectedLayer = EditorManager.tilemap.layers.length - 1;
+
             EditorManager.layersContainer.insertBefore(layerContainer, previousLayer);
         }
-
         EditorManager.layersContainer.addEventListener('change', function () {
             const selectedLayerElement : HTMLInputElement | null = document.querySelector('input[name="Layer"]:checked');
             EditorManager.selectedLayer = Number(selectedLayerElement!.value);
@@ -164,15 +163,26 @@ export class EditorManager {
             EditorManager.tilemap.toggleGrid();
         })
 
-        EditorManager.exportFileButton.addEventListener('click', function () {
-            //TODO  show filemanager to save in a json file
+        EditorManager.exportFileBtn.addEventListener('click', function () {
+            //TODO show filemanager to save in a json file
             console.log(exportTilemap(EditorManager.tilemap));
         })
 
-        EditorManager.addLayerButton.addEventListener('click',createLayElement)
-        EditorManager.deleteCurrentLayer.addEventListener('click',function(){}) //TODO delete current layer and reorder layers
+        EditorManager.cacheNeighboursBtn.addEventListener('click', function () {
+            EditorManager.tilemap.cacheNeighbours();  
+        });
         
+       
         createLayElement();
+        createLayElement();
+        createLayElement();
+        EditorManager.tilemap.createGrid(); //Garantees that will always be over the layers
+
+        //Set the initial layer the ground
+        const groundLayer: HTMLInputElement | null = document.querySelector('#l1');
+        EditorManager.selectedLayer = 1;
+        groundLayer!.checked = true;
+
     }
 
     private static initUITileset(tilesetPath : string) {
@@ -185,7 +195,7 @@ export class EditorManager {
     }
 
 
-    //This doesnt work in a insntanced class
+    //TODO This doesnt work in a instanced class
     private static changeCurrentTileTexture(e: MouseEvent) {
         const {x,y} = EditorManager.tilesetImgElement.getBoundingClientRect();
         const mouseX = e.clientX - x;
@@ -199,7 +209,6 @@ export class EditorManager {
         EditorManager.selectedTileElement.style.top = resulty * EditorManager.tilemap.tileSize[1] + "px";
 
         EditorManager.selectedTile = [resultx * EditorManager.tilemap.tileSize[0], resulty * EditorManager.tilemap.tileSize[1]]
-        //console.log(`${EditorManager.selectedTile}`);
         
         //TODO Make a local variable for readbility for the new position of the selected tile
         const rect = new Rectangle(resultx * EditorManager.tilemap.tileSize[0], resulty * EditorManager.tilemap.tileSize[1],
@@ -207,6 +216,7 @@ export class EditorManager {
         EditorManager.selectedTileTexture = new Texture(EditorManager.tileset, rect);
         if (EditorManager.selectedTileSprite) EditorManager.selectedTileSprite.texture = EditorManager.selectedTileTexture;
     }
+
     private static getZHeight(): number{
         return Number(EditorManager.zHeightInput.value);
     }

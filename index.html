@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <title>Map Editor</title>
   </head>
   <body>
       <canvas id="pixi-canvas"></canvas>
@@ -12,11 +12,11 @@
         <div class="top-menu">
           <h3>TILES</h3>
           <div>
-            <button class="file-btn open">Open</button>
-            <button class="file-btn export">Export</button>
+            <button class="btn open">Open</button>
+            <button class="btn export">Export</button>
           </div>
         </div> 
-        <div class="tileset-container">
+        <div class="tileset-container noselect">
           <img src="" class="tileset no-select" crossorigin>
           <div class="selected-tile-container"></div>
         </div>
@@ -29,12 +29,7 @@
           <div class="layers-options">
             <label for="z-height">Z Height: </label>
             <input type="number" min="-10" max="10" value="0" step="0.2" name="zAxis" id="z-height">
-            <button id="add" class="opt-button noselect">
-              ➕
-            </button>
-            <button id="delete" class="opt-button noselect"> 
-              🗑️
-            </button>
+            <button id="gen-neighbour" class="btn">Cache Neighbours</button>
             <div>
               <span>Grid: </span> 
               <input id="toggle-grid" type="checkbox"></input>

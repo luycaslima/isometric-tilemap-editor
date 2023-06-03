@@ -104,27 +104,12 @@ body{
   gap: 0.5rem;
 }
 
-.opt-button{
-  cursor: pointer;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: .25rem;
-  background-color: aliceblue;
-}
-
-.opt-button:hover{
-  background-color: rgb(192, 204, 214);
-}
 
 .top-menu{
   display: flex;
   justify-content: space-between;
 }
 
-.file-btn{
+.btn{
   cursor: pointer;
 }

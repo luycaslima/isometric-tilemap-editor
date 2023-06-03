@@ -22,15 +22,14 @@ export interface Vector2{
 type TileType = "SPAWNER" | "NORMAL";
 
 export interface ITile {
-    //the position of the tile on the tileset basetexture (value of the grid* tileset size)
+    //the position of the tile on the tileset basetexture (size of the grid * tileset size)
     tilesetTile: [number, number];
     isoPosition: Vector2;
-    zHeight: number;
     gridPosition: Vector2;
+    zHeight: number;
     depth: number; //depth
     tileType: TileType;
-    //TODO implement cache neighbours
-    //neighbours: [Vector2 | undefined, Vector2 | undefined, Vector2 | undefined, Vector2 | undefined]
+    neighbours: [Vector2 | undefined, Vector2 | undefined, Vector2 | undefined, Vector2 | undefined]
 }
 
 export class Tile extends Container implements ITile{
@@ -40,6 +39,9 @@ export class Tile extends Container implements ITile{
     gridPosition: Vector2;
     depth: number; // depth - order of rendering
     tileType: TileType;
+    //UP,RIGHT,DOWN,LEFT
+    neighbours: [Vector2 | undefined, Vector2 | undefined, Vector2 | undefined, Vector2 | undefined]
+
     
     private sprite : Sprite
     private spriteSize : SpriteSize
@@ -52,19 +54,16 @@ export class Tile extends Container implements ITile{
         this.gridPosition = gridPosition; //Attetion to convertion from point to vector2
         this.sprite = new Sprite(texture);
         this.spriteSize = spriteSize;
+        this.neighbours = [undefined,undefined,undefined,undefined]
 
-
-        this.zIndex = gridPosition.x + gridPosition.y;
+        this.zIndex = gridPosition.x + gridPosition.y;        
         this.depth = this.zIndex;
-        this.zHeight = z;
 
+        this.zHeight = z;
         this.isoPosition = toScreenCoordinates(gridPosition,spriteSize); //Attetion to convertion from point to vector2
         
         this.position.x = this.isoPosition.x;
         this.recalculateHeight(z);
-        //const heightOffset: number = -(spriteSize.h / 2) * z;
-        //this.position.y = this.isoPosition.y + heightOffset;
-
         this.addChild(this.sprite);
     }
 
@@ -75,16 +74,7 @@ export class Tile extends Container implements ITile{
     public recalculateHeight(z: number): void{
         const heightOffset: number = -(this.spriteSize.h / 2) * z;
         this.zHeight = z;
-        this.isoPosition.y = this.isoPosition.y + heightOffset;
-        this.position.y = this.isoPosition.y
-    }
-
-    //TODO check if need to show which tile is being selected
-    public onHover() {
-        this.sprite.tint = 0x232323;
-    }
-    public outHover() {
-        this.sprite.tint = 0xFFFFFF;
+        this.position.y = this.isoPosition.y + heightOffset;
     }
 
 }

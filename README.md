@@ -14,13 +14,13 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   
   - [ ] Background Image/Scenario of the Map
   
-  - [ ] Layers
+  - [x] Layers
     
     - [x] Store name on layers
-      
-      - [ ] use the name variable
     
-    - [ ] Refactor the matrix of tiles to use only a Map of created Tiles
+    - [x] Add tile with custom height ( Z height)
+    
+    - [x] Refactor the matrix of tiles to use only a Map of created Tiles
     
     - [x] Store an array of Layers on the tilemap and insert the Tiles in each layer.
     
@@ -56,6 +56,8 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   
   - [x] Select tile from Tileset to draw on map
   
+  - [ ] Separate the UI Elements in another class?
+  
   - [ ] Open map file (JSON)
   
   - [ ] Export/Save map file (JSON)
@@ -68,17 +70,15 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     
     - [ ] Layers
       
-      - [x] Create new Layer
-      
       - [x] Select current Layer
       
-      - [ ] Delete current Layer
+      - [ ] Fix number of the layers in three
+        
+        - [ ] Especify which is the walkable floor and the other two as only decorative
       
       - [ ] Hide Layer Button (Check box)
       
       - [x] Toggle Grid
-      
-      - [ ] Re order Layers
       
       - [x] CSS STYLE (Layer, buttons, change name(label)?)
     
@@ -87,6 +87,8 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     - [x] Export button
     
     - [x] Open button
+    
+    - [x] Tile's Z Height input
     
     - [ ] New Tilemap button
     

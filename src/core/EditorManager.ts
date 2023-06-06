@@ -1,10 +1,12 @@
 import { Application,  BaseTexture, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
 import { TilemapFile } from "../entities/Tilemap";
 import { Stage } from "@pixi/layers";
-import { createLayerElement, exportTilemap } from "./Utils";
+import { exportTilemap } from "./File";
+import Input from "./Input";
+import { createLayerElement } from "./UI";
 
 //TODO Refactor this class to reduce the multiple functions that it makes
-export class EditorManager {
+export default class EditorManager {
     constructor() { }
 
     private static app: Application;
@@ -53,14 +55,20 @@ export class EditorManager {
             height: height
         });
         EditorManager.app.stage = new Stage();
+
+        Input.initialize();
         EditorManager.initUIElements();
         //Pixel art style
         BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
         EditorManager.app.ticker.add(EditorManager.update)
     }
 
-    public static update(_delta: number) : void{
-        
+    public static update(delta: number) : void{
+        if (EditorManager.tilemap) {
+            EditorManager.tilemap.update(delta);
+            Input.update(delta);
+        }
+
     }
 
     /*
@@ -145,8 +153,6 @@ export class EditorManager {
 
     private static initUITilemapFunctions() {
        
-        
-        //TODO make only 3 layers
         const createLayElement =  () => {
             EditorManager.tilemap.createLayer();
             const previousLayer = document.querySelector('.layer');

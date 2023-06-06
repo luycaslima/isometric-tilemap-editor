@@ -1,8 +1,10 @@
-import { Container, Graphics, Point, Polygon, Texture} from "pixi.js";
-import { ITile, SpriteSize, Tile, Vector2 } from "./Tiles";
-import { EditorManager } from "../core/EditorManager";
+import { Container, Point, Texture} from "pixi.js";
+import { ITile, SpriteSize, Tile, Vector3 } from "./Tiles";
+import { GridSquare } from './GridSquare'
 import { MapLayer } from "./Layer";
 import { Layer } from "@pixi/layers";
+import Stats from "stats.js";
+
 
 export interface ITilemap {
     tilesetPath: string;
@@ -18,11 +20,16 @@ export class TilemapFile extends Container implements ITilemap{
     tileSize: [number, number];
     layers: Array<MapLayer>;
    
+    private stats: Stats;
     private grid: Layer;
     private gridSquares: GridSquare[]; //easy access for the grid squares if size edit is necessary.
 
     constructor(path : string, numberOfTiles:[number,number], tilesize: [number,number]) {
         super();
+        this.stats = new Stats();
+        this.stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+        document.body.appendChild( this.stats.dom );
+        
         this.tilesetPath = path;
         this.mapSize = numberOfTiles
         this.tileSize = tilesize;
@@ -59,10 +66,6 @@ export class TilemapFile extends Container implements ITilemap{
         
     }
 
-    public sortLayers() {
-        
-    }
-
     public createLayer() {
         const layer: MapLayer = new MapLayer();
         this.layers.push(layer);
@@ -74,6 +77,7 @@ export class TilemapFile extends Container implements ITilemap{
 
     public drawAndSaveTile(texture : Texture, gridPos : Point, zHeight : number , selectedTile: [number,number],selectedLayer: number) : void{
         let tileInstance = this.layers[selectedLayer].tiles.get(`${gridPos.x},${gridPos.y}`);
+        
         if (!tileInstance) {
             tileInstance  = new Tile(gridPos, zHeight, texture, selectedTile, { w: this.tileSize[0], h: this.tileSize[1] } as SpriteSize);
             this.layers[selectedLayer].tiles.set(`${gridPos.x},${gridPos.y}`, tileInstance);
@@ -83,9 +87,8 @@ export class TilemapFile extends Container implements ITilemap{
             this.layers[selectedLayer].tileDictonary.set(`${gridPos.x},${gridPos.y}`, {
                 tilesetTile: [selectedTile[0], selectedTile[1]],
                 isoPosition: tileInstance.isoPosition,
-                gridPosition: { x: gridPos.x, y: gridPos.y },
+                gridPosition: { x: gridPos.x, y: gridPos.y, z: zHeight } as Vector3,
                 depth: tileInstance.depth,
-                zHeight: zHeight,
                 tileType: tileInstance.tileType,
                 neighbours: tileInstance.neighbours
             } as ITile);
@@ -103,7 +106,13 @@ export class TilemapFile extends Container implements ITilemap{
         this.sortChildren();
     }
 
-    public deleteTile(gridPos: Point, selectedLayer: number) : void {
+    public deleteTile(gridPos: Point, selectedLayer: number): void {
+        let tileInstance = this.layers[selectedLayer].tiles.get(`${gridPos.x},${gridPos.y}`);
+        if (tileInstance) {
+            this.layers[selectedLayer].tiles.delete(`${gridPos.x},${gridPos.y}`);
+            this.layers[selectedLayer].tileDictonary.delete(`${gridPos.x},${gridPos.y}`);
+            this.layers[selectedLayer].removeChild(tileInstance);
+        }
         /*if (this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]) {
             this.layers[selectedLayer].tiles[gridPos.x][gridPos.y] = undefined;
             this.layers[selectedLayer].removeChild(this.layers[selectedLayer].tiles[gridPos.x][gridPos.y]!)
@@ -111,7 +120,7 @@ export class TilemapFile extends Container implements ITilemap{
     }
 
     public cacheNeighbours(): void {
-        const tiles : Array<ITile> = Array.from(this.layers[1].tileDictonary.values());
+        const tiles : Array<ITile> = Array.from(this.layers[1].tileDictonary.values()); //layer do meio é o ground
         for (const tile of tiles) {
             tile.neighbours = [
                 this.checkNeighbourAt({ x: tile.gridPosition.x - 1, y: tile.gridPosition.y}),
@@ -123,63 +132,16 @@ export class TilemapFile extends Container implements ITilemap{
         }
     }
 
-    private checkNeighbourAt(gridPosition: Vector2): Vector2 | undefined {
+    private checkNeighbourAt(gridPosition: Vector3): Vector3 | undefined {
         return this.layers[1].tileDictonary.get(`${gridPosition.x},${gridPosition.y}`)?.gridPosition;
     }
 
     public toggleGrid(): void {
         this.grid.renderable = !this.grid.renderable;
     }
-}
 
-//Class for the representation of the grid of the map
-class GridSquare extends Graphics{
-    private readonly gridPosition: Point
-    private rectPos: [number, number, number, number, number, number, number, number];
-
-    constructor(gridPos : Point, rect : [number, number, number, number, number, number, number, number]) {
-        super(); 
-        this.gridPosition = gridPos;
-        
-        this.rectPos = rect;
-        this.lineStyle(1, 0x00000);
-        this.alpha = 0.8;
-
-        this.drawPolygon(this.rectPos);
-        //Region interactable by the user (mouse)
-        this.hitArea = new Polygon(this.rectPos);
-        this.eventMode = 'static';
-
-        this.on('mousedown', this.placeTile); //Calls the fill square with tile function here
-        //TODO on onHover check if holdbutton and place tile automatically
-
-        //For better UX
-        this.on('mouseover', this.onHover); 
-        this.on('mouseout', this.outHover);
-    }
-
-    private onHover() {
-        //Show the current sprite in the grid position 
-        EditorManager.showCurrentTileOnGrid(this);
-        this.clear();
-        this.beginFill(0xFFFFFF);
-        this.alpha = 0.5;
-        this.lineStyle(1, 0x00000);
-        this.drawPolygon(this.rectPos);
-        this.endFill()
-    }
-
-    private outHover() {
-        //hide it
-        EditorManager.hideCurrentTileOnGrid();
-        this.clear();
-        this.alpha = 0.8;
-        this.lineStyle(1, 0x00000);
-        this.drawPolygon(this.rectPos);
-        this.endFill();
-    }
-
-    private placeTile() {
-        EditorManager.placeTile(this.gridPosition);
+    public update(_delta: number) {
+        this.stats.begin();
+        this.stats.end();
     }
 }

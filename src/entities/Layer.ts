@@ -1,9 +1,8 @@
 import { Layer } from "@pixi/layers";
 import { ITile, Tile } from "./Tiles";
 
-//TODO Have a flag to set as ground or under or over the ground(both only decorative)
+
 //TODO transform those decorative layers in one texture?
-//TODO set only 3 layers by default and no add more
 export interface ILayer {
     renderOrder: number;
     name: string;

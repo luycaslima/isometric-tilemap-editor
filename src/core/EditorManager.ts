@@ -1,9 +1,8 @@
 import { Application,  BaseTexture, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
 import { TilemapFile } from "../entities/Tilemap";
 import { Stage } from "@pixi/layers";
-import { exportTilemap } from "./File";
 import Input from "./Input";
-import { createLayerElement } from "./UI";
+import { UI} from "./UI";
 
 //TODO Refactor this class to reduce the multiple functions that it makes
 export default class EditorManager {
@@ -20,15 +19,6 @@ export default class EditorManager {
     private static selectedTileSprite? : Sprite; //Sprite that shows the current tile on the grid
     private static selectedLayer: number;
     
-    //UI elements
-    private static tilesetImgElement: HTMLImageElement;
-    private static selectedTileElement: HTMLDivElement;
-    private static layersContainer: HTMLElement;
-    private static toggleGridCheckbox: HTMLInputElement;
-    private static exportFileBtn: HTMLButtonElement;
-    private static zHeightInput: HTMLInputElement;
-    private static cacheNeighboursBtn: HTMLButtonElement;
-
     private static _width: number;
     private static _height: number;
 
@@ -57,7 +47,7 @@ export default class EditorManager {
         EditorManager.app.stage = new Stage();
 
         Input.initialize();
-        EditorManager.initUIElements();
+        UI.initUIElements();
         //Pixel art style
         BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
         EditorManager.app.ticker.add(EditorManager.update)
@@ -90,14 +80,39 @@ export default class EditorManager {
         EditorManager.tilemap.position.y = EditorManager.app.screen.height / 8;
         EditorManager.app.stage.addChild(EditorManager.tilemap);
 
-        EditorManager.initUITilemapFunctions();
+        UI.initUITilemapFunctions();
         EditorManager.createTileset(tilesetPath)
+    }
+
+
+    public static get getTilemap(): TilemapFile {
+        return EditorManager.tilemap;
+    }
+    public static get getCurrentLayer(): number {
+        return EditorManager.selectedLayer;
+    }
+    public static set setCurrentLayer(value: number) {
+        EditorManager.selectedLayer = value;
+    }
+
+    public static set setSelectedTile(values: [number, number]) {
+        EditorManager.selectedTile = values;
+    }
+    public static set setSelectedTileTexture(texture: Texture) {
+        EditorManager.selectedTileTexture = texture;
+    }
+    public static set setSpriteTexture(texture : Texture) {
+        if (EditorManager.selectedTileSprite) EditorManager.selectedTileSprite.texture = texture;
+    }
+    
+    public static get getTileset(): BaseTexture {
+        return EditorManager.tileset;
     }
 
     public static createTileset(tilesetPath: string) : void {
         //TODO create separatly or use ONLY one atlas image for each tilemap?
         EditorManager.tileset = BaseTexture.from(tilesetPath);
-        EditorManager.initUITileset(tilesetPath);
+        UI.initUITileset(tilesetPath);
        
         //getting the first tile texture from the tileset
         EditorManager.selectedTileTexture = new Texture(EditorManager.tileset,
@@ -113,7 +128,7 @@ export default class EditorManager {
 
     //GRID functions
     public static placeTile(gridPos: Point): void {
-        const height = EditorManager.getZHeight();
+        const height = UI.getZHeight();
         EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, height
             , EditorManager.selectedTile, EditorManager.selectedLayer);
     }
@@ -123,7 +138,7 @@ export default class EditorManager {
         if (EditorManager.selectedTileSprite) {
             EditorManager.selectedTileSprite.renderable = true;
             
-            const heightOffset = -(EditorManager.tilemap.tileSize[1] / 2) * EditorManager.getZHeight();
+            const heightOffset = -(EditorManager.tilemap.tileSize[1] / 2) * UI.getZHeight();
             //Why need divide by half the tile to center on the grid?
             const { x, y } = new Point(gridRef.parent.position.y - EditorManager.tilemap.tileSize[0] / 2
                                         , gridRef.parent.position.y - EditorManager.tilemap.tileSize[1] / 2 + heightOffset); //HALF the size to center
@@ -137,93 +152,4 @@ export default class EditorManager {
         }
     }
 
-
-    private static initUIElements() {
-        EditorManager.tilesetImgElement = document.querySelector('.tileset') as HTMLImageElement;
-        EditorManager.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
-        
-        EditorManager.layersContainer = document.querySelector('.layers-list') as HTMLElement;
-        EditorManager.exportFileBtn = document.querySelector('.export') as HTMLButtonElement;
-        EditorManager.zHeightInput = document.getElementById('z-height') as HTMLInputElement;
-        EditorManager.cacheNeighboursBtn = document.getElementById('gen-neighbour') as HTMLButtonElement;
-
-        EditorManager.toggleGridCheckbox = document.getElementById('toggle-grid') as HTMLInputElement;
-        EditorManager.toggleGridCheckbox.checked = true;
-    }
-
-    private static initUITilemapFunctions() {
-       
-        const createLayElement =  () => {
-            EditorManager.tilemap.createLayer();
-            const previousLayer = document.querySelector('.layer');
-            const layerContainer = createLayerElement(EditorManager.tilemap.layers.length - 1);
-
-            EditorManager.layersContainer.insertBefore(layerContainer, previousLayer);
-        }
-        EditorManager.layersContainer.addEventListener('change', function () {
-            const selectedLayerElement : HTMLInputElement | null = document.querySelector('input[name="Layer"]:checked');
-            EditorManager.selectedLayer = Number(selectedLayerElement!.value);
-
-        })
-        EditorManager.toggleGridCheckbox.addEventListener('change', function() {
-            EditorManager.tilemap.toggleGrid();
-        })
-
-        EditorManager.exportFileBtn.addEventListener('click', function () {
-            //TODO show filemanager to save in a json file
-            console.log(exportTilemap(EditorManager.tilemap));
-        })
-
-        EditorManager.cacheNeighboursBtn.addEventListener('click', function () {
-            EditorManager.tilemap.cacheNeighbours();  
-        });
-        
-       
-        createLayElement();
-        createLayElement();
-        createLayElement();
-        EditorManager.tilemap.createGrid(); //Garantees that will always be over the layers
-
-        //Set the initial layer the ground
-        const groundLayer: HTMLInputElement | null = document.querySelector('#l1');
-        EditorManager.selectedLayer = 1;
-        groundLayer!.checked = true;
-
-    }
-
-    private static initUITileset(tilesetPath : string) {
-        EditorManager.tilesetImgElement.src = tilesetPath;
-        EditorManager.tilesetImgElement.addEventListener('mousedown', EditorManager.changeCurrentTileTexture)
-        
-        const cssParam: string = `outline: 3px solid cyan; left:0; top:0; 
-                                     width:${EditorManager.tilemap.tileSize[0]}px; height:${EditorManager.tilemap.tileSize[1]}px;`;
-        EditorManager.selectedTileElement.setAttribute('style', cssParam);
-    }
-
-
-    //TODO This doesnt work in a instanced class
-    private static changeCurrentTileTexture(e: MouseEvent) {
-        const {x,y} = EditorManager.tilesetImgElement.getBoundingClientRect();
-        const mouseX = e.clientX - x;
-        const mouseY = e.clientY - y;
-        
-        //get the grid value IN THE UI
-        const [resultx, resulty] = [Math.floor(mouseX / EditorManager.tilemap.tileSize[0]), Math.floor(mouseY / EditorManager.tilemap.tileSize[1])]
-       
-        //Position the selection square on the tile over the image
-        EditorManager.selectedTileElement.style.left = resultx * EditorManager.tilemap.tileSize[0] + "px";
-        EditorManager.selectedTileElement.style.top = resulty * EditorManager.tilemap.tileSize[1] + "px";
-
-        EditorManager.selectedTile = [resultx * EditorManager.tilemap.tileSize[0], resulty * EditorManager.tilemap.tileSize[1]]
-        
-        //TODO Make a local variable for readbility for the new position of the selected tile
-        const rect = new Rectangle(resultx * EditorManager.tilemap.tileSize[0], resulty * EditorManager.tilemap.tileSize[1],
-            EditorManager.tilemap.tileSize[0], EditorManager.tilemap.tileSize[1]);
-        EditorManager.selectedTileTexture = new Texture(EditorManager.tileset, rect);
-        if (EditorManager.selectedTileSprite) EditorManager.selectedTileSprite.texture = EditorManager.selectedTileTexture;
-    }
-
-    private static getZHeight(): number{
-        return Number(EditorManager.zHeightInput.value);
-    }
 }

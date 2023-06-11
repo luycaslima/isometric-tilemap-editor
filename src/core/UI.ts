@@ -48,6 +48,7 @@ export class UI {
     private static layersContainer: HTMLElement;
     private static toggleGridCheckbox: HTMLInputElement;
     private static exportFileBtn: HTMLButtonElement;
+    private static openFileBtn: HTMLButtonElement;
     private static zHeightInput: HTMLInputElement;
     private static cacheNeighboursBtn: HTMLButtonElement;
 
@@ -57,7 +58,9 @@ export class UI {
         UI.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
     
         UI.layersContainer = document.querySelector('.layers-list') as HTMLElement;
-        UI.exportFileBtn = document.querySelector('.export') as HTMLButtonElement;
+        UI.exportFileBtn = document.getElementById('export') as HTMLButtonElement;
+        UI.openFileBtn = document.getElementById('open') as HTMLButtonElement;
+
         UI.zHeightInput = document.getElementById('z-height') as HTMLInputElement;
         UI.cacheNeighboursBtn = document.getElementById('gen-neighbour') as HTMLButtonElement;
         UI.toggleGridCheckbox = document.getElementById('toggle-grid') as HTMLInputElement;
@@ -83,9 +86,20 @@ export class UI {
             tilemap.toggleGrid();
         })
 
+        UI.openFileBtn.addEventListener('click', function () {
+            
+        })
+
         UI.exportFileBtn.addEventListener('click', function () {
-            //TODO show filemanager to save in a json file
-            console.log(exportTilemap(tilemap));
+            const content = exportTilemap(tilemap); 
+            let file = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
+            let fileDefaultName = `${EditorManager.getTilemap.name}.json`;
+
+            let linkELement = document.createElement('a');
+            linkELement.setAttribute('href', file)
+            linkELement.setAttribute('download', fileDefaultName);
+            linkELement.click();
+            //console.log(exportTilemap(tilemap));
         })
 
         UI.cacheNeighboursBtn.addEventListener('click', function () {

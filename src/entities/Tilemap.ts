@@ -15,6 +15,7 @@ export interface ITilemap {
 
 
 export class TilemapFile extends Container implements ITilemap{
+    name: string;
     tilesetPath: string;
     mapSize: [number, number];
     tileSize: [number, number];
@@ -30,7 +31,8 @@ export class TilemapFile extends Container implements ITilemap{
         this.stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
         document.body.appendChild( this.stats.dom );
         
-        this.tilesetPath = path;
+        this.name = "tilemap"; // TODO set this when created in UI ONLY FOR the name of the exporting file
+        this.tilesetPath = path; //TODO set the name of the tileset, when loaded on pixi that nam will call the texture on cache
         this.mapSize = numberOfTiles
         this.tileSize = tilesize;
         this.layers = [];

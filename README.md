@@ -1,4 +1,4 @@
-# Isometric Tatics Game (Map editor)
+# IsoEditor (Isometric tilemap editor)
 
 A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap editor that export the map in JSON for the isometric-tatics repo.
 
@@ -8,7 +8,11 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 - [x] Tile interface
 
-- [ ] 
+- [ ] Document the code
+
+- [ ] Organize/Stylize the README with explanation on how to use it
+
+- [ ] Integration with svelte + tailwind for easier UI development
 
 - [ ] Tilemaps
   
@@ -64,7 +68,7 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   
   - [ ] Open map file (JSON)
   
-  - [ ] Export/Save map file (JSON)
+  - [x] Export/Save map file (JSON)
     
     - [x] How save nested objects
 
@@ -78,7 +82,7 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
       
       - [x] Fix number of the layers in three
         
-        - [ ] Especify which is the walkable floor and the other two as only decorative
+        - [ ] Especify which is the walkable floor and the other two as only decorative( Visualy)
       
       - [ ] Hide Layer Button (Check box)
       
@@ -95,9 +99,15 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     - [x] Tile's Z Height input
     
     - [ ] New Tilemap button
+      
+      - [ ] Set up tileset size, image and tilemap grid with a form
     
-    - [ ] New Tileset button (?)
+    - [ ] Edit Tilemap Button ( With a button like that >✏️)
+    
+    - [ ] Edit Tileset button
     
     - [ ] Tools ( Brush, Eraser ) Zoom Input
-
-- [ ] Direct Integration in the game engine (?)
+    
+    - [ ] Open Tilemap Button
+    
+    - [x] Export TIlemap Button

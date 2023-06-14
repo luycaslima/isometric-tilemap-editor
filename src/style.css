@@ -33,6 +33,16 @@ body{
   gap: 1rem;
 }
 
+.editor-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: end;
+}
+
+.create-container{
+  margin: auto;
+}
+
 .tileset-container{
   position: relative;
   flex-grow: 1;
@@ -105,7 +115,6 @@ body{
   gap: 0.5rem;
 }
 
-
 .top-menu{
   display: flex;
   justify-content: space-between;
@@ -113,4 +122,57 @@ body{
 
 .btn{
   cursor: pointer;
+  min-width: 4rem;
+}
+
+
+.hidden{
+  display: none;
+  visibility: hidden;
+}
+
+
+/* Create Tilemap*/
+.change-tileset-btn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#tileset-input {
+  width: 90px;
+  overflow: hidden;
+}
+.create-tilemap-container{
+  padding: 1rem;
+  position: absolute;
+  top: 40%;
+  left: 0; 
+  right: 0; 
+  margin-left: auto; 
+  margin-right: auto; 
+  width: 480px; /* Need a specific value to work */
+  background-color: #242424;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.create-tilemap-options{
+  gap: 0.5rem;
+  position: relative;
+  display: flex;
+}
+.create-tilemap-options input[type='number']{
+  max-width: 64px;
+}
+.create-tilemap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
 }

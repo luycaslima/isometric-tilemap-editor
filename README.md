@@ -8,6 +8,8 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 - [x] Tile interface
 
+- [ ] Host an usable version on vercel
+
 - [ ] Document the code
 
 - [ ] Organize/Stylize the README with explanation on how to use it
@@ -102,9 +104,9 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
       
       - [ ] Set up tileset size, image and tilemap grid with a form
     
-    - [ ] Edit Tilemap Button ( With a button like that >✏️)
     
-    - [ ] Edit Tileset button
+    
+    - [ ] Edit Tilemap Button ( With a button like that >✏️)
     
     - [ ] Tools ( Brush, Eraser ) Zoom Input
     

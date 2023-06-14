@@ -21,7 +21,7 @@ export function exportTilemap(tilemap: TilemapFile): string{
         layers : layers
     })
 }
-
-export function openTilemap(tilemap: TilemapFile) /*: TilemapFile */ {
+/*
+export function openTilemap(tilemap: TilemapFile) : TilemapFile {
     
-}
+}*/

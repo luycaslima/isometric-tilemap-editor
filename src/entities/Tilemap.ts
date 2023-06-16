@@ -7,7 +7,7 @@ import Stats from "stats.js";
 
 
 export interface ITilemap {
-    tilesetPath: string;
+    tilesetName: string;
     mapSize: [number, number]; //Number of tiles in the map width x height
     tileSize: [number, number]; //Size of each tile
     layers: Array<MapLayer>;
@@ -16,7 +16,7 @@ export interface ITilemap {
 
 export class TilemapFile extends Container implements ITilemap{
     name: string;
-    tilesetPath: string;
+    tilesetName: string;
     mapSize: [number, number];
     tileSize: [number, number];
     layers: Array<MapLayer>;
@@ -25,14 +25,14 @@ export class TilemapFile extends Container implements ITilemap{
     private grid: Layer;
     private gridSquares: GridSquare[]; //easy access for the grid squares if size edit is necessary.
 
-    constructor(path : string, numberOfTiles:[number,number], tilesize: [number,number]) {
+    constructor(path : string, name :string, numberOfTiles:[number,number], tilesize: [number,number]) {
         super();
         this.stats = new Stats();
         this.stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
         document.body.appendChild( this.stats.dom );
         
-        this.name = "tilemap"; // TODO set this when created in UI ONLY FOR the name of the exporting file
-        this.tilesetPath = path; //TODO set the name of the tileset, when loaded on pixi that nam will call the texture on cache
+        this.name = name; // TODO set this when created in UI ONLY FOR the name of the exporting file
+        this.tilesetName = path; //TODO set the name of the tileset, when loaded on pixi that nam will call the texture on cache
         this.mapSize = numberOfTiles
         this.tileSize = tilesize;
         this.layers = [];

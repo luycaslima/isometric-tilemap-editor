@@ -1,0 +1,61 @@
+
+/* Create Tilemap*/
+.change-tileset-btn{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #tileset-input {
+    width: 90px;
+    overflow: hidden;
+  }
+  .create-tilemap-container{
+    z-index: 2;
+    padding: 1rem;
+    position: absolute;
+    top: 20%;
+    left: 0; 
+    right: 0; 
+    margin-left: auto; 
+    margin-right: auto; 
+    width: 480px; /* Need a specific value to work */
+    background-color: #242424;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .create-tilemap-options{
+    gap: 0.25rem;
+    position: relative;
+    display: flex;
+  }
+  .create-tilemap-options input[type='number']{
+    max-width: 64px;
+  }
+  .create-tilemap-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+  }
+
+.popup-background{
+    z-index: 1;
+    position: absolute;
+    margin-left: auto; 
+    margin-right: auto; 
+    width: 100vw;
+    height: 100vh;
+    background-color: #242424;
+    opacity: .5;
+}
+
+#preview {
+  max-width: 256px;
+}

@@ -8,13 +8,11 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
 
 - [x] Tile interface
 
-- [ ] Host an usable version on vercel
+- [x] Host an usable version on vercel
 
 - [ ] Document the code
 
 - [ ] Organize/Stylize the README with explanation on how to use it
-
-- [ ] Integration with svelte + tailwind for easier UI development
 
 - [ ] Tilemaps
   
@@ -100,11 +98,9 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     
     - [x] Tile's Z Height input
     
-    - [ ] New Tilemap button
+    - [x] New Tilemap button
       
-      - [ ] Set up tileset size, image and tilemap grid with a form
-    
-    
+      - [x] Set up tileset size, image and tilemap grid with a form
     
     - [ ] Edit Tilemap Button ( With a button like that >✏️)
     

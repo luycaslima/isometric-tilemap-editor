@@ -3,50 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IsoEditor - Isometric Map Editor</title>
   </head>
   <body>
+    <div class="popups">
       <div class="create-tilemap-container hidden">
-        <div class="create-tilemap">
+        <div class="create-tilemap-content">
           <h3>Create new Tilemap</h3>
-          <form action="" class="create-tilemap">
+          <form action="" id="tilemap-data" class="create-tilemap-content">
             <div class="create-tilemap-options">
+              <label for="file-name">File Name: </label>
+              <input type="text" name="file-name" placeholder="tilemap" id="file-name">
+            </div>
+            <div class="create-tilemap-options">
+              <h4>Tile Size: </h4>
               <label for="x-tile-size">X: </label>
-              <input type="number" name="" value="16" min="4" id="x-tile-size">
+              <input type="number" name="x-tile-size" value="48" min="4" id="x-tile-size">
               <label for="y-tile-size">Y: </label>
-              <input type="number" name="" value="16" min="4" id="y-tile-size">
+              <input type="number" name="y-tile-size" value="48" min="4" id="y-tile-size">
             </div>
             <div class="create-tilemap-options">
-              <label for="x-n-tile">Tiles: </label>
-              <input type="number" name="" value="4" min="1" id="x-n-tile">
-              <label for="y-n-tile">Tiles: </label>
-              <input type="number" name="" value="4" min="1" id="y-n-tile">
+              <h4>Nº Tiles: </h4>
+              <label for="x-n-tile"> X: </label>
+              <input type="number" name="x-n-tile" value="32" min="4" id="x-n-tile">
+              <label for="y-n-tile"> Y: </label>
+              <input type="number" name="y-n-tile" value="32" min="4" id="y-n-tile">
             </div>
+            <h3>Add Tileset</h3>
+            <input type="file" name="tileset-input " id="tileset-input-file">
+            <img src="https://place-hold.it/256x256" id="preview" alt="">
           </form>
-          <button class="btn">Create</button>
+          <button class="btn " id="create-tilemap-btn">Create</button>
         </div>
       </div>
-      <canvas id="pixi-canvas"></canvas>
-      <aside class="editor-container create-container hidden">
-        <h3>WELCOME!</h3>
-        <button id="new" class="btn">New</button>
-        <button id="open" class="btn">Open</button>
-      </aside>
-      <aside class="editor-container">
+      <div class="edit-tilemap"></div>
+      <div class="popup-background hidden"></div>
+    </div>
+    
+    <canvas id="pixi-canvas"></canvas>
+    <aside class="editor-container">
+        <div class=" create-container hidden">
+          <h3>WELCOME!</h3>
+          <!-- TODO think if is necessary to make this menu-->
+          <!-- <button id="new" class="btn">New</button> -->
+          <!-- <button id="open" class="btn">Open</button> -->
+        </div>
+
         <div class="editor-buttons">
           <button id="new" class="btn">New</button>
           <button id="open" class="btn">Open</button>
           <button id="export" class="btn">Export</button>
-          <button id="export" class="btn">Edit</button>
+          <button id="edit" class="btn">Edit</button>
         </div>
         <div class="top-menu">
           <h3>TILES</h3>
-          <!-- <div class="change-tileset-btn btn" >
-            <label for="tileset-input" class="btn">Change Tileset</label>
-            <input type="file"  name="tileset-input " id="tileset-input">
-          </div> -->
         </div> 
         <div class="tileset-container noselect">
           <img src="" class="tileset no-select" crossorigin>

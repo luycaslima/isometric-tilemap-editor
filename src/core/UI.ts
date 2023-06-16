@@ -2,7 +2,7 @@ import { Rectangle, Texture } from "pixi.js";
 import EditorManager from "./EditorManager";
 import { exportTilemap } from "./File";
 
-export function createLayerElement(id: number): HTMLDivElement {
+function createLayerElement(id: number): HTMLDivElement {
     const divContainer : HTMLDivElement = document.createElement('div');
     divContainer.className = 'layer';
     divContainer.id = id.toString();
@@ -42,29 +42,94 @@ export function createLayerElement(id: number): HTMLDivElement {
 }
 
 export class UI {
+    //POPUPS WINDOWS
+    private static tilemapDataForm: HTMLFormElement;
+    private static newPopupWindow: HTMLDivElement;
+    private static createTilemapButton: HTMLButtonElement;
+    private static popupBackground: HTMLDivElement;
+    private static previewImage: HTMLImageElement;
+    private static tilesetInputFile: HTMLInputElement;
+    private static fileName?: string;
+    private static urlFile?: string;
 
+    //TILEMAP EDITOR
     private static tilesetImgElement: HTMLImageElement;
     private static selectedTileElement: HTMLDivElement;
     private static layersContainer: HTMLElement;
     private static toggleGridCheckbox: HTMLInputElement;
-    private static exportFileBtn: HTMLButtonElement;
-    private static openFileBtn: HTMLButtonElement;
+    
+    private static exportTilemapBtn: HTMLButtonElement;
+    private static newTilemapEditorBtn: HTMLButtonElement;
+    private static openTilemapEditorBtn: HTMLButtonElement;
+    private static editTilemapBtn: HTMLButtonElement;
+
+
     private static zHeightInput: HTMLInputElement;
     private static cacheNeighboursBtn: HTMLButtonElement;
 
 
     public static initUIElements() {
+        //TODO Separate between what is popups and what is the side editor
+        UI.tilemapDataForm = document.getElementById('tilemap-data') as HTMLFormElement;
+        UI.newPopupWindow = document.querySelector('.create-tilemap-container') as HTMLDivElement;
+        UI.createTilemapButton = document.getElementById('create-tilemap-btn') as HTMLButtonElement;
+        UI.popupBackground = document.querySelector('.popup-background') as HTMLDivElement;
+        UI.previewImage = document.getElementById('preview') as HTMLImageElement;
+        UI.tilesetInputFile = document.getElementById('tileset-input-file') as HTMLInputElement;
+
         UI.tilesetImgElement = document.querySelector('.tileset') as HTMLImageElement;
         UI.selectedTileElement = document.querySelector('.selected-tile-container') as HTMLDivElement;
     
         UI.layersContainer = document.querySelector('.layers-list') as HTMLElement;
-        UI.exportFileBtn = document.getElementById('export') as HTMLButtonElement;
-        UI.openFileBtn = document.getElementById('open') as HTMLButtonElement;
+
+        UI.exportTilemapBtn = document.getElementById('export') as HTMLButtonElement;
+        UI.openTilemapEditorBtn = document.getElementById('open') as HTMLButtonElement;
+        UI.newTilemapEditorBtn = document.getElementById('new') as HTMLButtonElement;
+        UI.editTilemapBtn = document.getElementById('edit') as HTMLButtonElement;
 
         UI.zHeightInput = document.getElementById('z-height') as HTMLInputElement;
         UI.cacheNeighboursBtn = document.getElementById('gen-neighbour') as HTMLButtonElement;
         UI.toggleGridCheckbox = document.getElementById('toggle-grid') as HTMLInputElement;
-        UI.toggleGridCheckbox.checked = true;
+        UI.toggleGridCheckbox.checked = true;     
+
+       
+        UI.newTilemapEditorBtn.addEventListener('click',()=>{
+            UI.newPopupWindow.classList.toggle('hidden');
+            UI.popupBackground.classList.toggle('hidden');
+        })
+        
+        UI.openTilemapEditorBtn.addEventListener('click', function () {
+            
+        })
+
+        UI.tilesetInputFile.addEventListener('change', function () {
+            if (UI.tilesetInputFile.files!.length > 0) {
+                const file = UI.tilesetInputFile.files![0]
+                if (/\.(jpe?g|png)$/i.test(file.name)) { //check if the file is one of the supported files
+                    const src = URL.createObjectURL(file);              
+                    UI.previewImage.src = src;
+                    UI.urlFile = src;
+                    //TODO let on the img preview check the size of the each tile?
+                    UI.fileName = file.name;
+                }
+            }
+        })
+
+        UI.createTilemapButton.addEventListener('click', function () {
+            if (!UI.fileName || !UI.urlFile) return; 
+            const data: FormData = new FormData(UI.tilemapDataForm);
+            const tilemapName = data.get('file-name') as string
+            const tileSize: [number, number] = [Number(data.get('x-tile-size')), Number(data.get('y-tile-size'))];
+            const numberOfTiles: [number, number] = [Number(data.get('x-n-tile')), Number(data.get('y-n-tile'))]
+           
+            EditorManager.createTileMap(UI.fileName, UI.urlFile, tilemapName, numberOfTiles, tileSize);
+            UI.initUITilemapFunctions();
+            
+            UI.fileName = undefined;
+            UI.previewImage.src = '';
+            UI.newPopupWindow.classList.toggle('hidden');
+            UI.popupBackground.classList.toggle('hidden');
+        })
     }
 
     public static initUITilemapFunctions() {
@@ -77,20 +142,18 @@ export class UI {
 
             UI.layersContainer.insertBefore(layerContainer, previousLayer);
         }
+
         UI.layersContainer.addEventListener('change', function () {
             const selectedLayerElement : HTMLInputElement | null = document.querySelector('input[name="Layer"]:checked');
             EditorManager.setCurrentLayer = Number(selectedLayerElement!.value);
 
         })
-        UI.toggleGridCheckbox.addEventListener('change', function() {
-            tilemap.toggleGrid();
-        })
 
-        UI.openFileBtn.addEventListener('click', function () {
+        UI.editTilemapBtn.addEventListener('click', function () {
             
         })
 
-        UI.exportFileBtn.addEventListener('click', function () {
+        UI.exportTilemapBtn.addEventListener('click', function () {
             const content = exportTilemap(tilemap); 
             let file = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
             let fileDefaultName = `${EditorManager.getTilemap.name}.json`;
@@ -99,13 +162,16 @@ export class UI {
             linkELement.setAttribute('href', file)
             linkELement.setAttribute('download', fileDefaultName);
             linkELement.click();
-            //console.log(exportTilemap(tilemap));
         })
 
         UI.cacheNeighboursBtn.addEventListener('click', function () {
             tilemap.cacheNeighbours();  
         });
-        
+
+        UI.toggleGridCheckbox.addEventListener('change', function() {
+            tilemap.toggleGrid();
+        })
+
        
         createLayElement();
         createLayElement();
@@ -118,6 +184,8 @@ export class UI {
         groundLayer!.checked = true;
 
     }
+
+
 
     public static initUITileset(tilesetPath: string) {
         const tilemap = EditorManager.getTilemap

@@ -1,5 +1,5 @@
 import { ILayer } from "../entities/Layer";
-import { TilemapFile } from "../entities/Tilemap";
+import { ITilemap, TilemapFile } from "../entities/Tilemap";
 import { ITile } from "../entities/Tiles";
 
 
@@ -15,11 +15,11 @@ export function exportTilemap(tilemap: TilemapFile): string{
     }
 
     return JSON.stringify({
-        tilesetPath: tilemap.tilesetPath,
+        tilesetName: tilemap.tilesetName,
         mapSize: tilemap.tileSize,
         tileSize: tilemap.tileSize,
-        layers : layers
-    })
+        layers: layers
+    } as ITilemap);
 }
 /*
 export function openTilemap(tilemap: TilemapFile) : TilemapFile {

@@ -47,7 +47,7 @@ export default class EditorManager {
         EditorManager.app.stage = new Stage();
 
         Input.initialize();
-        UI.initUIElements();
+        
         //Pixel art style
         BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
         EditorManager.app.ticker.add(EditorManager.update)
@@ -74,14 +74,13 @@ export default class EditorManager {
     }
     */
 
-    public static createTileMap(tilesetPath: string, numberOfTiles: [number,number], tileSize : [number,number]): void {
-        EditorManager.tilemap = new TilemapFile(tilesetPath, numberOfTiles, tileSize)
+    public static createTileMap(filename: string, urlSource : string ,exportName :string ,numberOfTiles: [number,number], tileSize : [number,number]): void {
+        EditorManager.tilemap = new TilemapFile(filename, exportName, numberOfTiles, tileSize)
         EditorManager.tilemap.position.x = EditorManager.app.screen.width / 2;
         EditorManager.tilemap.position.y = EditorManager.app.screen.height / 8;
         EditorManager.app.stage.addChild(EditorManager.tilemap);
 
-        UI.initUITilemapFunctions();
-        EditorManager.createTileset(tilesetPath)
+        EditorManager.createTileset(urlSource)
     }
 
 
@@ -109,10 +108,10 @@ export default class EditorManager {
         return EditorManager.tileset;
     }
 
-    public static createTileset(tilesetPath: string) : void {
+    public static createTileset(urlSource: string) : void {
         //TODO create separatly or use ONLY one atlas image for each tilemap?
-        EditorManager.tileset = BaseTexture.from(tilesetPath);
-        UI.initUITileset(tilesetPath);
+        EditorManager.tileset = BaseTexture.from(urlSource);
+        UI.initUITileset(urlSource);
        
         //getting the first tile texture from the tileset
         EditorManager.selectedTileTexture = new Texture(EditorManager.tileset,

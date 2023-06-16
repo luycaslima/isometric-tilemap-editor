@@ -23,7 +23,6 @@ export class GridSquare extends Graphics{
         //TODO descorbri uma forma de n ter q chamar no pointer down e no mouser over
         this.on('pointerdown', this.placeTile); //Calls the fill square with tile function here
         
-        //For better UX
         this.on('mouseover', this.onHover); 
         this.on('mouseout', this.outHover);
     }
@@ -31,7 +30,7 @@ export class GridSquare extends Graphics{
     private onHover() {
         //Show the current sprite in the grid position 
         EditorManager.showCurrentTileOnGrid(this);
-        if (Input.isLeftMouseDown) EditorManager.placeTile(this.gridPosition);
+        if (Input.isLeftMouseDown) EditorManager.placeTile(this.gridPosition); //TODO block thoses events when new tilemap window appears
 
         this.clear();
         this.beginFill(0xFFFFFF);
@@ -43,7 +42,7 @@ export class GridSquare extends Graphics{
 
     private outHover() {
         //hide it
-        EditorManager.hideCurrentTileOnGrid();
+        EditorManager.hideCurrentTileOnGrid(); //TODO block thoses events when new tilemap window appears
         this.clear();
         this.alpha = 0.8;
         this.lineStyle(1, 0x00000);
@@ -52,6 +51,6 @@ export class GridSquare extends Graphics{
     }
     
     private placeTile() {
-        EditorManager.placeTile(this.gridPosition);
+        EditorManager.placeTile(this.gridPosition); //TODO block thoses events when new tilemap window appears
     }
 }

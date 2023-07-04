@@ -20,6 +20,10 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   
   - [ ] Background Image/Scenario of the Map
   
+  - [ ] Tile Editor
+    
+    - [ ] Setup hit area of each image? 
+  
   - [x] Layers
     
     - [x] Store name on layers
@@ -64,7 +68,7 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
   
   - [x] Separate the UI Elements in another class
   
-  - [ ] Lazy load of the images
+  - [x] Lazy load of the images
   
   - [ ] Open map file (JSON)
   

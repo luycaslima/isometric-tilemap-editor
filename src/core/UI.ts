@@ -1,5 +1,5 @@
 import { Rectangle, Texture } from "pixi.js";
-import EditorManager from "./EditorManager";
+import Editor from "./Editor";
 import { exportTilemap } from "./File";
 
 function createLayerElement(id: number): HTMLDivElement {
@@ -122,7 +122,7 @@ export class UI {
             const tileSize: [number, number] = [Number(data.get('x-tile-size')), Number(data.get('y-tile-size'))];
             const numberOfTiles: [number, number] = [Number(data.get('x-n-tile')), Number(data.get('y-n-tile'))]
            
-            EditorManager.createTileMap(UI.fileName, UI.urlFile, tilemapName, numberOfTiles, tileSize);
+            Editor.createTileMap(UI.fileName, UI.urlFile, tilemapName, numberOfTiles, tileSize);
             UI.initUITilemapFunctions();
             
             UI.fileName = undefined;
@@ -133,7 +133,7 @@ export class UI {
     }
 
     public static initUITilemapFunctions() {
-        const tilemap = EditorManager.getTilemap
+        const tilemap = Editor.getTilemap
         const createLayElement = () => {
             
             tilemap.createLayer();
@@ -145,7 +145,7 @@ export class UI {
 
         UI.layersContainer.addEventListener('change', function () {
             const selectedLayerElement : HTMLInputElement | null = document.querySelector('input[name="Layer"]:checked');
-            EditorManager.setCurrentLayer = Number(selectedLayerElement!.value);
+            Editor.setCurrentLayer = Number(selectedLayerElement!.value);
 
         })
 
@@ -156,7 +156,7 @@ export class UI {
         UI.exportTilemapBtn.addEventListener('click', function () {
             const content = exportTilemap(tilemap); 
             let file = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
-            let fileDefaultName = `${EditorManager.getTilemap.name}.json`;
+            let fileDefaultName = `${Editor.getTilemap.name}.json`;
 
             let linkELement = document.createElement('a');
             linkELement.setAttribute('href', file)
@@ -180,7 +180,7 @@ export class UI {
 
         //Set the initial layer the ground
         const groundLayer: HTMLInputElement | null = document.querySelector('#l1');
-        EditorManager.setCurrentLayer = 1;
+        Editor.setCurrentLayer = 1;
         groundLayer!.checked = true;
 
     }
@@ -188,7 +188,7 @@ export class UI {
 
 
     public static initUITileset(tilesetPath: string) {
-        const tilemap = EditorManager.getTilemap
+        const tilemap = Editor.getTilemap
         UI.tilesetImgElement.src = tilesetPath;
         UI.tilesetImgElement.addEventListener('mousedown', UI.changeCurrentTileTexture)
         
@@ -200,7 +200,7 @@ export class UI {
 
      //TODO This doesnt work in a instanced class
     private static changeCurrentTileTexture(e: MouseEvent) {
-        const tilemap = EditorManager.getTilemap;
+        const tilemap = Editor.getTilemap;
         const {x,y} = UI.tilesetImgElement.getBoundingClientRect();
         const mouseX = e.clientX - x;
         const mouseY = e.clientY - y;
@@ -212,14 +212,14 @@ export class UI {
         UI.selectedTileElement.style.left = resultx * tilemap.tileSize[0] + "px";
         UI.selectedTileElement.style.top = resulty * tilemap.tileSize[1] + "px";
 
-        EditorManager.setSelectedTile = [resultx * tilemap.tileSize[0], resulty * tilemap.tileSize[1]]
+        Editor.setSelectedTile = [resultx * tilemap.tileSize[0], resulty * tilemap.tileSize[1]]
         
         const rect = new Rectangle(resultx * tilemap.tileSize[0], resulty * tilemap.tileSize[1],
             tilemap.tileSize[0], tilemap.tileSize[1]);
-        const texture = new Texture(EditorManager.getTileset, rect);
+        const texture = new Texture(Editor.getTileset, rect);
         
-        EditorManager.setSelectedTileTexture = texture;
-        EditorManager.setSpriteTexture = texture;
+        Editor.setSelectedTileTexture = texture;
+        Editor.setSpriteTexture = texture;
     }
 
     public static getZHeight(): number{

@@ -1,5 +1,5 @@
 import { Graphics, Point, Polygon } from "pixi.js";
-import EditorManager from "../core/EditorManager";
+import Editor from "../core/Editor";
 import Input from "../core/Input";
 
 //Class for the representation of the grid of the map
@@ -29,8 +29,8 @@ export class GridSquare extends Graphics{
 
     private onHover() {
         //Show the current sprite in the grid position 
-        EditorManager.showCurrentTileOnGrid(this);
-        if (Input.isLeftMouseDown) EditorManager.placeTile(this.gridPosition); //TODO block thoses events when new tilemap window appears
+        Editor.showCurrentTileOnGrid(this);
+        if (Input.isLeftMouseDown) Editor.placeTile(this.gridPosition); 
 
         this.clear();
         this.beginFill(0xFFFFFF);
@@ -42,7 +42,7 @@ export class GridSquare extends Graphics{
 
     private outHover() {
         //hide it
-        EditorManager.hideCurrentTileOnGrid(); //TODO block thoses events when new tilemap window appears
+        Editor.hideCurrentTileOnGrid();
         this.clear();
         this.alpha = 0.8;
         this.lineStyle(1, 0x00000);
@@ -50,7 +50,8 @@ export class GridSquare extends Graphics{
         this.endFill();
     }
     
-    private placeTile() {
-        EditorManager.placeTile(this.gridPosition); //TODO block thoses events when new tilemap window appears
+    private placeTile(e: MouseEvent) {
+        if (e.button.toString() !== '0') return; //Find a way to check the input check
+        Editor.placeTile(this.gridPosition); 
     }
 }

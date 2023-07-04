@@ -1,11 +1,11 @@
-import { Application,  BaseTexture, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
+import { Application,  BaseTexture, Container, DisplayObject, Point, Rectangle, SCALE_MODES, Sprite, Texture } from "pixi.js";
 import { TilemapFile } from "../entities/Tilemap";
 import { Stage } from "@pixi/layers";
 import Input from "./Input";
 import { UI} from "./UI";
 
 //TODO Refactor this class to reduce the multiple functions that it makes
-export default class EditorManager {
+export default class Editor {
     constructor() { }
 
     private static app: Application;
@@ -23,20 +23,26 @@ export default class EditorManager {
     private static _height: number;
 
     public static get width(): number{
-        return EditorManager._width;
+        return Editor._width;
     }
     public static get heigth(): number{
-        return EditorManager._height;
+        return Editor._height;
+    }
+    public static get getAppStage(): Container {
+        return Editor.app.stage;
+    }
+    public static get getCurrentTilemapFile(): TilemapFile{
+        return Editor.tilemap;
     }
     
     public static initialize(width: number, height: number, backgroundColor: number): void {
-        EditorManager._width = width;
-        EditorManager._height = height;
+        Editor._width = width;
+        Editor._height = height;
 
-        EditorManager.selectedTile = [0, 0];
-        EditorManager.selectedLayer = 0;
+        Editor.selectedTile = [0, 0];
+        Editor.selectedLayer = 0;
 
-        EditorManager.app = new Application({
+        Editor.app = new Application({
             view: document.getElementById('pixi-canvas') as HTMLCanvasElement,
             resolution: window.devicePixelRatio || 1,
             autoDensity: true,
@@ -44,18 +50,18 @@ export default class EditorManager {
             width: width,
             height: height
         });
-        EditorManager.app.stage = new Stage();
+        Editor.app.stage = new Stage();
 
         Input.initialize();
         
         //Pixel art style
         BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
-        EditorManager.app.ticker.add(EditorManager.update)
+        Editor.app.ticker.add(Editor.update)
     }
 
     public static update(delta: number) : void{
-        if (EditorManager.tilemap) {
-            EditorManager.tilemap.update(delta);
+        if (Editor.tilemap) {
+            Editor.tilemap.update(delta);
             Input.update(delta);
         }
 
@@ -75,79 +81,86 @@ export default class EditorManager {
     */
 
     public static createTileMap(filename: string, urlSource : string ,exportName :string ,numberOfTiles: [number,number], tileSize : [number,number]): void {
-        EditorManager.tilemap = new TilemapFile(filename, exportName, numberOfTiles, tileSize)
-        EditorManager.tilemap.position.x = EditorManager.app.screen.width / 2;
-        EditorManager.tilemap.position.y = EditorManager.app.screen.height / 8;
-        EditorManager.app.stage.addChild(EditorManager.tilemap);
+        Editor.tilemap = new TilemapFile(filename, exportName, numberOfTiles, tileSize)
+        Editor.tilemap.position.x = Editor.app.screen.width / 2;
+        Editor.tilemap.position.y = Editor.app.screen.height / 8;
+        Editor.app.stage.addChild(Editor.tilemap);
 
-        EditorManager.createTileset(urlSource)
+        Editor.createTileset(urlSource)
     }
 
 
     public static get getTilemap(): TilemapFile {
-        return EditorManager.tilemap;
+        return Editor.tilemap;
     }
     public static get getCurrentLayer(): number {
-        return EditorManager.selectedLayer;
+        return Editor.selectedLayer;
     }
     public static set setCurrentLayer(value: number) {
-        EditorManager.selectedLayer = value;
+        Editor.selectedLayer = value;
     }
 
     public static set setSelectedTile(values: [number, number]) {
-        EditorManager.selectedTile = values;
+        Editor.selectedTile = values;
     }
     public static set setSelectedTileTexture(texture: Texture) {
-        EditorManager.selectedTileTexture = texture;
+        Editor.selectedTileTexture = texture;
     }
     public static set setSpriteTexture(texture : Texture) {
-        if (EditorManager.selectedTileSprite) EditorManager.selectedTileSprite.texture = texture;
+        if (Editor.selectedTileSprite) Editor.selectedTileSprite.texture = texture;
     }
     
     public static get getTileset(): BaseTexture {
-        return EditorManager.tileset;
+        return Editor.tileset;
     }
 
     public static createTileset(urlSource: string) : void {
         //TODO create separatly or use ONLY one atlas image for each tilemap?
-        EditorManager.tileset = BaseTexture.from(urlSource);
+        Editor.tileset = BaseTexture.from(urlSource);
         UI.initUITileset(urlSource);
        
         //getting the first tile texture from the tileset
-        EditorManager.selectedTileTexture = new Texture(EditorManager.tileset,
-            new Rectangle(0, 0, EditorManager.tilemap.tileSize[0], EditorManager.tilemap.tileSize[1]));
+        Editor.selectedTileTexture = new Texture(Editor.tileset,
+            new Rectangle(0, 0, Editor.tilemap.tileSize[0], Editor.tilemap.tileSize[1]));
          //Creating sprite for UI
-        EditorManager.selectedTileSprite = Sprite.from(EditorManager.selectedTileTexture);
+        Editor.selectedTileSprite = Sprite.from(Editor.selectedTileTexture);
           
-        EditorManager.selectedTileSprite.alpha = 0.5;
-        EditorManager.selectedTileSprite.renderable = false;
-        EditorManager.app.stage.addChild(EditorManager.selectedTileSprite);
+        Editor.selectedTileSprite.alpha = 0.5;
+        Editor.selectedTileSprite.renderable = false;
+        Editor.tilemap.addChild(Editor.selectedTileSprite); //Add tilemap container for better pos calculation
   
     }
 
     //GRID functions
     public static placeTile(gridPos: Point): void {
         const height = UI.getZHeight();
-        EditorManager.tilemap.drawAndSaveTile(EditorManager.selectedTileTexture, gridPos, height
-            , EditorManager.selectedTile, EditorManager.selectedLayer);
+        Editor.tilemap.drawAndSaveTile(Editor.selectedTileTexture, gridPos, height
+            , Editor.selectedTile, Editor.selectedLayer);
     }
 
 
     public static showCurrentTileOnGrid(gridRef: DisplayObject): void {
-        if (EditorManager.selectedTileSprite) {
-            EditorManager.selectedTileSprite.renderable = true;
+        if (Editor.selectedTileSprite) {
+            Editor.selectedTileSprite.renderable = true;
             
-            const heightOffset = -(EditorManager.tilemap.tileSize[1] / 2) * UI.getZHeight();
+            const heightOffset = -(Editor.tilemap.tileSize[1] / 2) * UI.getZHeight();
+
             //Why need divide by half the tile to center on the grid?
-            const { x, y } = new Point(gridRef.parent.position.y - EditorManager.tilemap.tileSize[0] / 2
-                                        , gridRef.parent.position.y - EditorManager.tilemap.tileSize[1] / 2 + heightOffset); //HALF the size to center
-            EditorManager.selectedTileSprite.position = gridRef.toGlobal({x,y} as Point);
+            /*const { x, y } = new Point(gridRef.parent.position.x - Editor.tilemap.tileSize[0] / 2
+                                        , gridRef.parent.position.y - Editor.tilemap.tileSize[1] / 2 + heightOffset); //HALF the size to center
+            Editor.selectedTileSprite.position = gridRef.toGlobal({x,y} as Point);*/
+            
+            const newPosition = new Point(gridRef.position.x - (Editor.tilemap.tileSize[0] / 2) , gridRef.position.y - (Editor.tilemap.tileSize[1] / 2) + heightOffset);
+            Editor.selectedTileSprite.position.copyFrom(newPosition)
+
+            /*console.log(`Tile x: ${Editor.selectedTileSprite.position.x} y: ${Editor.selectedTileSprite.position.y} \n
+            Grid x: ${gridRef.position.x} y: ${gridRef.position.y}`)*/
         }
     }
 
     public static hideCurrentTileOnGrid() {
-        if (EditorManager.selectedTileSprite) {
-            EditorManager.selectedTileSprite.renderable = false;
+        if (Editor.selectedTileSprite) {
+            Editor.selectedTileSprite.renderable = false;
         }
     }
 

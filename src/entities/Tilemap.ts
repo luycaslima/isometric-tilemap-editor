@@ -99,6 +99,7 @@ export class TilemapFile extends Container implements ITilemap{
         } else {
             const tile = this.layers[selectedLayer].tileDictonary.get(`${gridPos.x},${gridPos.y}`);
             tile!.tilesetTile = [selectedTile[0], selectedTile[1]];
+            tile!.gridPosition.z = zHeight;
             this.layers[selectedLayer].tileDictonary.set(`${gridPos.x},${gridPos.y}`, tile!);
             
             tileInstance!.recalculateHeight(zHeight);

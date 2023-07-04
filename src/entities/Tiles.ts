@@ -51,7 +51,7 @@ export class Tile extends Container implements ITile{
       
         this.tileType = 'NORMAL';
         this.tilesetTile = tilesetPos;
-        this.gridPosition = { x: gridPosition.x, y:gridPosition.y, z: z  }; //Attetion to convertion from point to vector3
+        this.gridPosition = { x: gridPosition.x, y:gridPosition.y, z }; //Atention to convertion from point to vector3
         this.sprite = new Sprite(texture);
         this.spriteSize = spriteSize;
         this.neighbours = [undefined,undefined,undefined,undefined]
@@ -65,7 +65,7 @@ export class Tile extends Container implements ITile{
         
         //First time must happen here
         const heightOffset: number = -(this.spriteSize.h / 2) * z;
-        this.gridPosition.z = z;
+        //this.gridPosition.z = z;
         this.position.y = this.isoPosition.y + heightOffset;
         this.isoPosition.y = this.isoPosition.y + heightOffset;
 

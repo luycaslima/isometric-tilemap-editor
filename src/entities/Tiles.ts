@@ -29,7 +29,7 @@ export interface ITile {
     gridPosition: Vector3;
     depth: number; //depth
     tileType: TileType;
-    neighbours: [Vector3 | undefined, Vector3 | undefined, Vector3 | undefined, Vector3 | undefined]
+    neighbours: [Vector3 | undefined, Vector3 | undefined, Vector3 | undefined, Vector3 | undefined] //TODO change to array
 }
 
 export class Tile extends Container implements ITile{
@@ -46,7 +46,7 @@ export class Tile extends Container implements ITile{
     private sprite : Sprite
     private spriteSize : SpriteSize
 
-    constructor(gridPosition: Point, z: number,texture: Texture, tilesetPos : [number,number], spriteSize : SpriteSize) {
+    constructor(gridPosition: Point, z: number,texture: Texture, tilesetPos : [number,number], spriteSize : SpriteSize, offset  : [number,number]) {
         super();
       
         this.tileType = 'NORMAL';
@@ -61,8 +61,10 @@ export class Tile extends Container implements ITile{
 
         this.isoPosition = toScreenCoordinates(gridPosition,spriteSize); //Attetion to convertion from point to vector3
         
-        this.position.x = this.isoPosition.x;
-        
+        this.isoPosition.x =  this.isoPosition.x + offset[0];
+        this.isoPosition.y =  this.isoPosition.y - offset[1];
+
+        this.position.x = this.isoPosition.x ;
         //First time must happen here
         const heightOffset: number = -(this.spriteSize.h / 2) * z;
         //this.gridPosition.z = z;

@@ -82,8 +82,9 @@ export default class Editor {
 
     public static createTileMap(filename: string, urlSource : string ,exportName :string ,numberOfTiles: [number,number], tileSize : [number,number]): void {
         Editor.tilemap = new TilemapFile(filename, exportName, numberOfTiles, tileSize)
+        //Editor.tilemap.pivot.set(0.5);
         Editor.tilemap.position.x = Editor.app.screen.width / 2;
-        Editor.tilemap.position.y = Editor.app.screen.height / 8;
+        Editor.tilemap.position.y = Editor.app.screen.height / 2;
         Editor.app.stage.addChild(Editor.tilemap);
 
         Editor.createTileset(urlSource)

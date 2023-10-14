@@ -1,4 +1,4 @@
-import { Container, Point, Texture} from "pixi.js";
+import { Container, Point, Sprite, Texture} from "pixi.js";
 import { ITile, SpriteSize, Tile, Vector3 } from "./Tiles";
 import { GridSquare } from './GridSquare'
 import { MapLayer } from "./Layer";
@@ -41,13 +41,21 @@ export class TilemapFile extends Container implements ITilemap{
         this.grid.zOrder = 1000;
         this.grid.group.enableSort = true;
         this.gridSquares = [];
-        
+
+        const spr = Sprite.from('tileset/pivot.png');
+        this.addChild(spr);
+    
         this.sortChildren();
+
     }
 
     public createGrid() {
         const tileWidth = this.tileSize[0]; 
         const tileHeight = this.tileSize[1] / 2;
+
+        const wOffset =  tileWidth/2;
+        const hOffset = (this.mapSize[1] * tileHeight/2) - (tileHeight); //For centering
+
 
         for (let x = 0; x < this.mapSize[0]; x++) {
             for (let y = 0; y < this.mapSize[1]; y++) {
@@ -56,10 +64,12 @@ export class TilemapFile extends Container implements ITilemap{
                     [0, 0, tileWidth / 2, tileHeight / 2, 0, tileHeight, -tileWidth / 2, tileHeight / 2]
                 );
                 square.position = new Point(
-                    x * tileWidth / 2  - y  * tileWidth /2
-                    , x * tileHeight / 2 + y * tileHeight / 2);
+                    (x * tileWidth / 2  - y  * tileWidth /2) + wOffset
+                    , (x * tileHeight / 2 + y * tileHeight / 2) - hOffset);
                 
-                
+                //wOffset = wOffset - tileWidth;
+                //hOffset = hOffset - tileHeight;
+
                 this.grid.addChild(square);
                 this.gridSquares.push(square);
             }
@@ -80,8 +90,16 @@ export class TilemapFile extends Container implements ITilemap{
     public drawAndSaveTile(texture : Texture, gridPos : Point, zHeight : number , selectedTile: [number,number],selectedLayer: number) : void{
         let tileInstance = this.layers[selectedLayer].tiles.get(`${gridPos.x},${gridPos.y}`);
         
+        const tileWidth = this.tileSize[0]; 
+        const tileHeight = this.tileSize[1] / 2;
+
+        const offset: [number, number] = [
+            tileWidth / 2,
+            (this.mapSize[1] * tileHeight/2) - (tileHeight)
+        ]
+
         if (!tileInstance) {
-            tileInstance  = new Tile(gridPos, zHeight, texture, selectedTile, { w: this.tileSize[0], h: this.tileSize[1] } as SpriteSize);
+            tileInstance  = new Tile(gridPos, zHeight, texture, selectedTile, { w: this.tileSize[0], h: this.tileSize[1] } as SpriteSize, offset);
             this.layers[selectedLayer].tiles.set(`${gridPos.x},${gridPos.y}`, tileInstance);
             this.layers[selectedLayer].addChild(tileInstance);
             this.layers[selectedLayer].sortChildren();
@@ -123,6 +141,7 @@ export class TilemapFile extends Container implements ITilemap{
     }
 
     public cacheNeighbours(): void {
+        //TODO config here to not add if it has null
         const tiles : Array<ITile> = Array.from(this.layers[1].tileDictonary.values()); //layer do meio é o ground
         for (const tile of tiles) {
             tile.neighbours = [

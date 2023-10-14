@@ -113,3 +113,5 @@ A typescript + vite + pixi js project for a isometric tatics game. Basic tilemap
     - [ ] Open Tilemap Button
     
     - [x] Export TIlemap Button
+
+- [ ] Tile Editor
